@@ -1,0 +1,68 @@
+<!--pages/AdMonitor/panel.wxml-->
+<view class="container">
+
+  <view class="panel">
+
+    <view class="panel__total">
+      <!-- <text class="h1">广告花费</text> -->
+      <view class="panel__show">
+        <view class="panel__money">
+          <text class="cny">¥</text>
+          <text class="cny"> {{ total_cny||0 }}</text>
+        </view>
+        <view class="panel__money">
+          <text class="twd">NT$</text>
+          <text class="twd"> {{ total_twd||0 }}</text>
+        </view>
+      </view>
+    </view>
+    <view class="panel_date">
+      <!-- 时间段 -->
+      <view class="panel_picker_date">
+        <picker mode="date" value="{{start_date}}" start="2022-01-01" bindchange="bindDateChange">
+          <view class="panel_picker_date_box">
+            <text class="iconfont icon-calendar"></text>
+            <view class="picker_date">
+              {{start_date}}
+            </view>
+          </view>
+        </picker>
+        -
+        <picker mode="date" value="{{end_date}}" start="2022-01-01" bindchange="bindDateChange2">
+          <view class="panel_picker_date_box">
+            <text class="iconfont icon-calendar"></text>
+            <view class="picker_date">
+              {{end_date}}
+            </view>
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="panel_details">
+    <text class="h3">Recent Ad statistics</text>
+    <view class="panel_empty" wx:if="{{empty}}">
+      <text class="iconfont icon-statistics"></text>
+      <text class="alert">analytics data</text>
+    </view>
+
+    <view class="statistics">
+      <view class="statistics_list" wx:for="{{details}}" wx:for-index="index" wx:for-item="detail" wx:key="index">
+        {{detail}}
+        <view class="statistics_item">
+             <view class="name">
+             <text class="iconfont icon-survey"></text>
+             CPA</view>
+             <view class="value">156.45</view>
+        </view>
+        <view class="statistics_item">
+             <view class="name">
+             <text class="iconfont icon-survey"></text>
+             CTR</view>
+             <view class="value">0.56%</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

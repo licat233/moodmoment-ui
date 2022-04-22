@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "iconfont"; /* Project id  */
+  src: url('https://wx.static.catli.net/static/iconfont/iconfont.ttf?t=1650596814545') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-survey:before {
+  content: "\e67f";
+}
+
+.icon-statistics:before {
+  content: "\e653";
+}
+
+.icon-calendar:before {
+  content: "\e746";
+}
+
+
