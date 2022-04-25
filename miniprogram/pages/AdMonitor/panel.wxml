@@ -14,102 +14,111 @@
         </view>
       </view>
     </view>
+    <!-- 日期选择 -->
     <view class="panel_date">
-      <!-- 时间段 -->
+      <date isShow="{{isShowDateCheck}}" minDate="2022/03/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
+      <!-- 官方日期选择器 -->
       <view class="panel_picker_date">
-        <picker mode="date" value="{{start_date}}" start="2022-01-01" bindchange="startDateChange">
+        <!-- <picker mode="date" value="{{start_date}}" start="2022-01-01" bindchange="startDateChange"> -->
+        <view class="panel_picker_date_content" bindtap="showDateCheck">
           <view class="panel_picker_date_box">
             <text class="iconfont icon-calendar"></text>
             <view class="picker_date">{{start_date}}</view>
+            <text class="picker_date_center"> : </text>
+            <view class="picker_date">{{end_date}}</view>
           </view>
-        </picker>
-        -
-        <picker mode="date" value="{{end_date}}" start="2022-01-01" bindchange="endDateChange">
+        </view>
+        <!-- </picker> -->
+        <!-- <picker mode="date" value="{{end_date}}" start="2022-01-01" bindchange="endDateChange">
           <view class="panel_picker_date_box">
             <text class="iconfont icon-calendar"></text>
             <view class="picker_date">{{end_date}}</view>
           </view>
-        </picker>
+        </picker> -->
       </view>
+      <!-- 官方日期选择器end -->
     </view>
+    <!-- 时间选择end -->
   </view>
   <view class="panel_details">
-    <text class="h3">{{statistics.Account||"Recent Ad statistics"}}</text>
-    <view class="panel_empty" wx:if="{{isEmpty}}">
-      <text class="iconfont icon-statistics"></text>
-      <text class="alert">analytics data</text>
-    </view>
-    <view class="statistics" wx:if="{{!isEmpty}}">
-      <view class="statistics_list">
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Cost</text>
+    <view class="panel_content">
+      <text class="h3">{{statistics.Account||"Recent Ad statistics"}}</text>
+      <view class="panel_empty" wx:if="{{isEmpty}}">
+        <text class="iconfont icon-statistics"></text>
+        <text class="alert">analytics data</text>
+      </view>
+      <view class="statistics" wx:if="{{!isEmpty}}">
+        <view class="statistics_list">
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Cost</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Cost}}</view>
           </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Imp</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Imp}}</view>
           </view>
-          <view class="value">{{statistics.Cost}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Imp</text>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Click</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Click}}</view>
           </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Ctr</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Ctr}}</view>
           </view>
-          <view class="value">{{statistics.Imp}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Click</text>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Cv</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Cv}}</view>
           </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Cvr</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Cvr}}</view>
           </view>
-          <view class="value">{{statistics.Click}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Ctr</text>
+          <view class="statistics_item">
+            <view class="name">
+              <text class="iconfont icon-survey"></text>
+              <text>Cpa</text>
+            </view>
+            <view class="drawLinebox">
+              <view class="drawLine"></view>
+            </view>
+            <view class="value">{{statistics.Cpa}}</view>
           </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
-          </view>
-          <view class="value">{{statistics.Ctr}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Cv</text>
-          </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
-          </view>
-          <view class="value">{{statistics.Cv}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Cvr</text>
-          </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
-          </view>
-          <view class="value">{{statistics.Cvr}}</view>
-        </view>
-        <view class="statistics_item">
-          <view class="name">
-            <text class="iconfont icon-survey"></text>
-            <text>Cpa</text>
-          </view>
-          <view class="drawLinebox">
-          <view class="drawLine"></view>
-          </view>
-          <view class="value">{{statistics.Cpa}}</view>
         </view>
       </view>
     </view>

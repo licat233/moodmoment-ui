@@ -1,5 +1,6 @@
 // pages/AdMonitor/panel.ts
-import { formatDate, nowLogicDate } from '../../utils/time';
+import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
+import { twd2cny, cny2twd } from '../../utils/calculate';
 
 // interface PanelData {
 //   total_cny: Number; //总人民币
@@ -65,6 +66,7 @@ Page({
     start_date: formatDate(nowLogicDate()),
     end_date: formatDate(nowLogicDate()),
     isEmpty: true,
+    isShowDateCheck: false,
   },
 
   /**
@@ -119,26 +121,6 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage() {
-  },
-
-  /**
-   * 开始日期改变事件
-   */
-  startDateChange(e: any) {
-    // console.log(e.detail.value);
-    if (e.detail.value === this.data.start_date) return
-    this.setData({ start_date: e.detail.value });
-    this.requestStatistics(e.detail.value, this.data.end_date);
-  },
-
-  /**
-   * 结束日期改变事件 
-  */
-  endDateChange(e: any) {
-    // console.log(e.detail.value);
-    if (e.detail.value === this.data.end_date) return
-    this.setData({ end_date: e.detail.value });
-    this.requestStatistics(this.data.start_date, e.detail.value);
   },
 
   /**
@@ -208,13 +190,42 @@ Page({
       },
     });
   },
+  /**
+   * 打开日期选择器
+   */
+  showDateCheck() {
+    if (this.data.isShowDateCheck) return;
+    this.setData({ isShowDateCheck: true });
+  },
+  /**
+   * 关闭日期选择器
+   */
+  closeDateCheck() {
+    if (!this.data.isShowDateCheck) return;
+    this.setData({ isShowDateCheck: false });
+  },
+
+  /**
+ * 日期改变事件
+ */
+  dateSubmit(e: any) {
+    // console.log(e);
+    // if (e.currentTarget.id !== "dateRange") return;
+    const startDate = formatDateDetail(e.detail.start.year,e.detail.start.month,e.detail.start.date)
+    const endDate = formatDateDetail(e.detail.end.year,e.detail.end.month,e.detail.end.date)
+    const startEqual = startDate === this.data.start_date
+    const endEqual = endDate === this.data.end_date
+    if (startEqual && endEqual) return;
+    if (!startEqual) {
+      this.setData({ start_date: startDate });
+    }
+    if (!endEqual) {
+      this.setData({ end_date: endDate });
+    }
+    this.requestStatistics(startDate, endDate);
+  },
+
+  /**
+   * 
+   */
 })
-
-function twd2cny(twd: number): string {
-  return (twd * 100 / 450).toFixed(2);
-}
-
-
-function cny2twd(cny: number): string {
-  return ((cny * 100 * 45) / 1000).toFixed(2);
-}

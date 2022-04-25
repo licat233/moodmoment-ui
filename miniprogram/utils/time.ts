@@ -18,10 +18,17 @@ const formatNumber = (n: number) => {
   return s[1] ? s : '0' + s
 }
 
-export const formatDate = (date: Date):string => {
+export const formatDate = (date: Date): string => {
   const year: number = date.getFullYear();
   const month: any = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
   const day: any = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+  return year + '-' + month + '-' + day;
+};
+
+export const formatDateDetail = (Year: number, Month: number, Day: number): string => {
+  const year: number = Year;
+  const month: any = Month < 10 ? '0' + Month : Month;
+  const day: any = Day < 10 ? '0' + Day : Day;
   return year + '-' + month + '-' + day;
 };
 
@@ -29,12 +36,12 @@ export const checkAuditTime = (beginTime: string, endTime: string): boolean => {
   const nowDate = new Date();
   const beginDate = new Date(nowDate);
   const endDate = new Date(nowDate);
-  
+
   const beginIndex = beginTime.lastIndexOf("\:");
   const beginHour = parseInt(beginTime.substring(0, beginIndex));
   const beginMinue = parseInt(beginTime.substring(beginIndex + 1, beginTime.length));
   beginDate.setHours(beginHour, beginMinue, 0, 0);
-  
+
   const endIndex = endTime.lastIndexOf("\:");
   const endHour = parseInt(endTime.substring(0, endIndex));
   const endMinue = parseInt(endTime.substring(endIndex + 1, endTime.length));
@@ -43,11 +50,15 @@ export const checkAuditTime = (beginTime: string, endTime: string): boolean => {
 }
 
 export const nowLogicDate = (): Date => {
-  const today = new Date(); 
-  if (checkAuditTime("00:00:00","09:30:00")){
+  const today = new Date();
+  if (checkAuditTime("00:00:00", "09:30:00")) {
     //返回昨天日期
     const yesterday = new Date(today.setDate(today.getDate() - 1))
-     return yesterday
+    return yesterday
   }
   return today
+}
+
+export const equalDate = (date1: Date, date2: Date): boolean => {
+  return date1.toString() === date2.toString();
 }
