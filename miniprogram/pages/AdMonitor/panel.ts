@@ -51,7 +51,6 @@ Page({
    */
   data: {
     statistics: {
-      Account: "",
       Imp: 0,
       Click: 0,
       Cost: "0.00",
@@ -67,13 +66,27 @@ Page({
     end_date: formatDate(nowLogicDate()),
     isEmpty: true,
     isShowDateCheck: false,
+    //渠道-账号
+    channel_list: [
+      {
+        name: "popin",
+        account_list: ["Wang_skin01", "Self_White"],
+        account_index: 0
+      },
+      {
+        name: "line",
+        account_list: ["A28490221213", "A79362240622"],
+        account_index: 0
+      },
+    ],
+    channel_index: 0
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.requestStatistics(this.data.start_date, this.data.end_date);
+    this.requestStatistics();
   },
 
   /**
@@ -126,14 +139,20 @@ Page({
   /**
    * 请求statistics数据
    */
-  requestStatistics(startDate: string, endDate: string) {
+  requestStatistics() {
+    if (this.data.channel_list.length === 0) return;
+    if (this.data.channel_list[this.data.channel_index].account_list.length === 0) return;
+    const startDate = this.data.start_date;
+    const endDate = this.data.end_date;
+    const channel = 
+    //TODO: 获取当前渠道和账号
     this.setData({ isLoading: true });
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
       return;
     }
     const params = {
-      "channel": "popin",
-      "account": "Wang_skin01",
+      "channel": channel,
+      "account": account,
       "startDate": startDate,
       "endDate": endDate
     }
@@ -211,8 +230,8 @@ Page({
   dateSubmit(e: any) {
     // console.log(e);
     // if (e.currentTarget.id !== "dateRange") return;
-    const startDate = formatDateDetail(e.detail.start.year,e.detail.start.month,e.detail.start.date)
-    const endDate = formatDateDetail(e.detail.end.year,e.detail.end.month,e.detail.end.date)
+    const startDate = formatDateDetail(e.detail.start.year, e.detail.start.month, e.detail.start.date)
+    const endDate = formatDateDetail(e.detail.end.year, e.detail.end.month, e.detail.end.date)
     const startEqual = startDate === this.data.start_date
     const endEqual = endDate === this.data.end_date
     if (startEqual && endEqual) return;
@@ -222,10 +241,33 @@ Page({
     if (!endEqual) {
       this.setData({ end_date: endDate });
     }
-    this.requestStatistics(startDate, endDate);
+    this.requestStatistics();
   },
 
   /**
-   * 
+   * 选项卡改变事件
    */
+  changeChannel(e: any) {
+    console.log(e)
+    const index = +e.detail.currentIndex
+    if (index !== this.data.channel_index) {
+      // console.log(channelName)
+      this.setData({
+        channel_index: index
+      })
+      this.requestStatistics();
+    }
+  },
+
+  /**
+   * 账号选择改变事件
+   */
+  accountPickerChange(e: any) {
+    const index = +e.detail.value;
+    if (index === this.data.account_index) return
+    this.setData({
+      account_index: index
+    })
+    this.requestStatistics()
+  }
 })

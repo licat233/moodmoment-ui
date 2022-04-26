@@ -1,126 +1,142 @@
 <!-- pages/AdMonitor/panel.wxml -->
 <view class="container">
-  <view class="panel">
-    <view class="panel__total">
-      <!-- <text class="h1">广告花费</text> -->
-      <view class="panel__show">
-        <view class="panel__money">
-          <text class="cny">¥</text>
-          <text class="cny">{{ total_cny }}</text>
+  <l-transition show="{{ true }}" name="fade-down">
+    <view class="panel">
+      <view class="panel__total">
+        <view class="panel__show">
+          <view class="panel__money">
+            <text class="cny">¥</text>
+            <text class="cny" space="nbsp"> {{ total_cny }}</text>
+          </view>
+          <view class="panel__money">
+            <text class="twd">NT$</text>
+            <text class="twd" space="nbsp"> {{ total_twd }}</text>
+          </view>
         </view>
-        <view class="panel__money">
-          <text class="twd">NT$</text>
-          <text class="twd">{{ total_twd }}</text>
+      </view>
+      <!-- 日期选择 -->
+      <view class="panel_date">
+        <date isShow="{{isShowDateCheck}}" minDate="2022/03/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
+        <!-- 官方日期选择器 -->
+        <view class="panel_picker_date">
+          <view class="panel_picker_date_content" bindtap="showDateCheck">
+            <view class="panel_picker_date_box">
+              <text class="iconfont icon-calendar"></text>
+              <view class="picker_date">{{start_date}}</view>
+              <text class="picker_date_center"> : </text>
+              <view class="picker_date">{{end_date}}</view>
+            </view>
+          </view>
+        </view>
+        <!-- 官方日期选择器end -->
+      </view>
+      <!-- 时间选择end -->
+    </view>
+  </l-transition>
+  <!-- 渠道选择 -->
+  <l-segment bind:linchange="changeChannel" active-key="popin" height="80rpx" placement="bottom" has-line="{{false}}" animated-for-line="{{false}}" l-class="segment_view" l-header-line-class="segment_line" inactive-color="white" active-color="black" l-active-class="segment_active" l-inactive-class="segment_noactive">
+    <view wx:if="{{channel_list.length===0}}">
+      <text>无渠道数据</text>
+    </view>
+    <block wx:for="{{channel_list}}">
+      <l-segment-item tab="{{item}}" key="{{item}}"></l-segment-item>
+    </block>
+  </l-segment>
+  <!-- 渠道选择end -->
+  <l-transition show="{{true}}" name="fade-up">
+    <view class="panel_details">
+      <view class="panel_content">
+        <view class="adaccount_box">
+          <text class="adaccount" wx:if="{{account_list.length===0}}">Recent Ad statistics</text>
+          <!-- 账号选择 -->
+          <view class="account_picker">
+            <picker bindchange="accountPickerChange" mode="selector" value="{{account_index}}" range="{{account_list}}">
+              <view class="account_picker_item">
+                {{account_list[account_index]}}
+              </view>
+            </picker>
+          </view>
+        </view>
+        <!-- 账号选择end -->
+        <view class="panel_empty" wx:if="{{isEmpty}}">
+          <text class="iconfont icon-statistics"></text>
+          <text class="alert">analytics data</text>
+        </view>
+        <view class="statistics" wx:if="{{!isEmpty}}">
+          <view class="statistics_list">
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Cost</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Cost}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Imp</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Imp}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Click</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Click}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Ctr</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Ctr}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Cv</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Cv}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Cvr</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Cvr}}</view>
+            </view>
+            <view class="statistics_item">
+              <view class="name">
+                <text class="iconfont icon-survey"></text>
+                <text>Cpa</text>
+              </view>
+              <view class="drawLinebox">
+                <view class="drawLine"></view>
+              </view>
+              <view class="value">{{statistics.Cpa}}</view>
+            </view>
+          </view>
         </view>
       </view>
     </view>
-    <!-- 日期选择 -->
-    <view class="panel_date">
-      <date isShow="{{isShowDateCheck}}" minDate="2022/03/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
-      <!-- 官方日期选择器 -->
-      <view class="panel_picker_date">
-        <!-- <picker mode="date" value="{{start_date}}" start="2022-01-01" bindchange="startDateChange"> -->
-        <view class="panel_picker_date_content" bindtap="showDateCheck">
-          <view class="panel_picker_date_box">
-            <text class="iconfont icon-calendar"></text>
-            <view class="picker_date">{{start_date}}</view>
-            <text class="picker_date_center"> : </text>
-            <view class="picker_date">{{end_date}}</view>
-          </view>
-        </view>
-        <!-- </picker> -->
-        <!-- <picker mode="date" value="{{end_date}}" start="2022-01-01" bindchange="endDateChange">
-          <view class="panel_picker_date_box">
-            <text class="iconfont icon-calendar"></text>
-            <view class="picker_date">{{end_date}}</view>
-          </view>
-        </picker> -->
-      </view>
-      <!-- 官方日期选择器end -->
-    </view>
-    <!-- 时间选择end -->
-  </view>
-  <view class="panel_details">
-    <view class="panel_content">
-      <text class="h3">{{statistics.Account||"Recent Ad statistics"}}</text>
-      <view class="panel_empty" wx:if="{{isEmpty}}">
-        <text class="iconfont icon-statistics"></text>
-        <text class="alert">analytics data</text>
-      </view>
-      <view class="statistics" wx:if="{{!isEmpty}}">
-        <view class="statistics_list">
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Cost</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Cost}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Imp</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Imp}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Click</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Click}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Ctr</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Ctr}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Cv</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Cv}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Cvr</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Cvr}}</view>
-          </view>
-          <view class="statistics_item">
-            <view class="name">
-              <text class="iconfont icon-survey"></text>
-              <text>Cpa</text>
-            </view>
-            <view class="drawLinebox">
-              <view class="drawLine"></view>
-            </view>
-            <view class="value">{{statistics.Cpa}}</view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
+  </l-transition>
 </view>

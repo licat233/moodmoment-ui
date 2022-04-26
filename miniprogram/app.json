@@ -2,7 +2,8 @@
   "pages": [
     "pages/AdMonitor/panel",
     "pages/index/index",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/my/my"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -12,5 +13,41 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "Subpackages": [],
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "l-transition": "./components/lin-ui/transition/index"
+  },
+  "tabBar": {
+    "custom": false,
+    "color": "#a9b7b7",
+    "selectedColor": "#11cd6e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [{
+        "selectedIconPath": "./style/icons/shouye-1.png",
+        "iconPath": "./style/icons/shouye.png",
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "selectedIconPath": "./style/icons/jiankong-1.png",
+        "iconPath": "./style/icons/jiankong.png",
+        "pagePath": "pages/AdMonitor/panel",
+        "text": "AM"
+      },
+      {
+        "selectedIconPath": "./style/icons/rizhi-1.png",
+        "iconPath": "./style/icons/rizhi.png",
+        "pagePath": "pages/logs/logs",
+        "text": "日志"
+      },
+      {
+        "selectedIconPath": "./style/icons/wode-1.png",
+        "iconPath": "./style/icons/wode.png",
+        "pagePath": "pages/my/my",
+        "text": "我的"
+      }
+    ]
+  }
 }

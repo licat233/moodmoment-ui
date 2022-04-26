@@ -4,7 +4,9 @@
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
+  "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "date": "../../components/date/index"
+    "l-segment": "../../components/lin-ui/segment",
+    "l-segment-item": "../../components/lin-ui/segment-item"
   }
 }
