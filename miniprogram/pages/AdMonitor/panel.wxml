@@ -1,4 +1,7 @@
 <!-- pages/AdMonitor/panel.wxml -->
+<template name="accountItem">
+  <view class="account_picker_item">{{account_list[account_index]}}</view>
+</template>
 <view class="container">
   <l-transition show="{{ true }}" name="fade-down">
     <view class="panel">
@@ -6,11 +9,11 @@
         <view class="panel__show">
           <view class="panel__money">
             <text class="cny">¥</text>
-            <text class="cny" space="nbsp"> {{ total_cny }}</text>
+            <text class="cny" space="nbsp">{{ total_cny }}</text>
           </view>
           <view class="panel__money">
             <text class="twd">NT$</text>
-            <text class="twd" space="nbsp"> {{ total_twd }}</text>
+            <text class="twd" space="nbsp">{{ total_twd }}</text>
           </view>
         </view>
       </view>
@@ -23,7 +26,7 @@
             <view class="panel_picker_date_box">
               <text class="iconfont icon-calendar"></text>
               <view class="picker_date">{{start_date}}</view>
-              <text class="picker_date_center"> : </text>
+              <text class="picker_date_center">:</text>
               <view class="picker_date">{{end_date}}</view>
             </view>
           </view>
@@ -33,29 +36,35 @@
       <!-- 时间选择end -->
     </view>
   </l-transition>
-  <!-- 渠道选择 -->
-  <l-segment bind:linchange="changeChannel" active-key="popin" height="80rpx" placement="bottom" has-line="{{false}}" animated-for-line="{{false}}" l-class="segment_view" l-header-line-class="segment_line" inactive-color="white" active-color="black" l-active-class="segment_active" l-inactive-class="segment_noactive">
-    <view wx:if="{{channel_list.length===0}}">
-      <text>无渠道数据</text>
-    </view>
-    <block wx:for="{{channel_list}}">
-      <l-segment-item tab="{{item}}" key="{{item}}"></l-segment-item>
-    </block>
-  </l-segment>
-  <!-- 渠道选择end -->
+  <!-- 标签页 -->
+  <view class="tabs_container">
+    <l-tabs bind:linchange="onTabsChannelChangeEvent" animated="{{false}}" swipeable="{{false}}" has-line="{{false}}" l-header-class="tabs_view" l-active-class="tabs_active" l-inactive-class="tabs_noactive" l-content-class="tabs_content" l-tabimage-class="tabs_img">
+      <block wx:for="{{channel_list}}" wx:key="id" wx:for-index="idx" wx:for-item="channel">
+        <l-tabpanel tab="{{channel.name}}" key="{{idx}}" slot="{{idx+'.tab'}}">
+          <view class="tab-content">
+            <!-- 手风琴 -->
+            <l-collapse>
+              <l-collapse-item title="{{channel.name}}账号">
+                <l-checkbox-group bind:linchange="onCheckAccountHandler">
+                  <l-checkbox wx:for-items="{{channel.accounts}}" wx:key="index" key="{{index}}" checked="{{item.isChecked}}" disabled="{{item.disabled}}">
+                    {{item.value}}
+                  </l-checkbox>
+                </l-checkbox-group>
+              </l-collapse-item>
+            </l-collapse>
+            <!-- 手风琴end -->
+          </view>
+        </l-tabpanel>
+      </block>
+    </l-tabs>
+  </view>
+  <!-- 标签页end -->
   <l-transition show="{{true}}" name="fade-up">
     <view class="panel_details">
       <view class="panel_content">
+        <!-- 账号选择 -->
         <view class="adaccount_box">
-          <text class="adaccount" wx:if="{{account_list.length===0}}">Recent Ad statistics</text>
-          <!-- 账号选择 -->
-          <view class="account_picker">
-            <picker bindchange="accountPickerChange" mode="selector" value="{{account_index}}" range="{{account_list}}">
-              <view class="account_picker_item">
-                {{account_list[account_index]}}
-              </view>
-            </picker>
-          </view>
+          <text class="adaccount">Recent Ad statistics</text>
         </view>
         <!-- 账号选择end -->
         <view class="panel_empty" wx:if="{{isEmpty}}">

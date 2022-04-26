@@ -34,7 +34,6 @@ interface StatisticsData {
 }
 
 interface Statistics {
-  Account: string;
   Cost: string;
   Imp: number;
   Click: number;
@@ -43,6 +42,19 @@ interface Statistics {
   Cvr: string;
   Cpa: string;
   Currency: string;
+}
+
+interface AccountInfo {
+  value: string;
+  isChecked: boolean;
+  disabled: boolean;
+}
+
+interface RequestStatisticsParams {
+  channel: string;
+  accounts: string[];
+  startDate: string;
+  endDate: string;
 }
 
 Page({
@@ -69,17 +81,27 @@ Page({
     //渠道-账号
     channel_list: [
       {
+        id: 0,
         name: "popin",
-        account_list: ["Wang_skin01", "Self_White"],
-        account_index: 0
+        // account_list: ["Wang_skin01", "Self_White"],
+        // account_index: 0,
+        accounts: [
+          { value: 'Wang_skin01', isChecked: false, disabled: false },
+          { value: 'Self_White', isChecked: false, disabled: false }
+        ]
       },
       {
+        id: 1,
         name: "line",
-        account_list: ["A28490221213", "A79362240622"],
-        account_index: 0
-      },
+        // account_list: ["A28490221213", "A79362240622"],
+        // account_index: 0,
+        accounts: [
+          { value: 'A28490221213', isChecked: false, disabled: false },
+          { value: 'A79362240622', isChecked: false, disabled: false }
+        ]
+      }
     ],
-    channel_index: 0
+    channel_index: 0,
   },
 
   /**
@@ -140,21 +162,54 @@ Page({
    * 请求statistics数据
    */
   requestStatistics() {
+    //判断是否有渠道
     if (this.data.channel_list.length === 0) return;
-    if (this.data.channel_list[this.data.channel_index].account_list.length === 0) return;
+    const current_channel = this.data.channel_list[this.data.channel_index]
+    //判断渠道是否存在
+    if (current_channel === undefined) return;
+    //判断渠道内是否有账号
+    if (current_channel.accounts.length === 0) return;
+    //TODO：准备开发支持多个账号
+    const check_accounts: string[] = [];
+    current_channel.accounts.forEach((account: AccountInfo) => {
+      if (account.isChecked) {
+        check_accounts.push(account.value);
+      }
+    });
+    //如果没有选中账号，则empty
+    if (check_accounts.length === 0) {
+      const data: Statistics = {
+        Cost: '',
+        Imp: 0,
+        Click: 0,
+        Ctr: '',
+        Cv: 0,
+        Cvr: '',
+        Cpa: '',
+        Currency: 'TWD'
+      }
+      this.setData({
+        total_cny: "0.00",
+        total_twd: "0.00",
+        statistics: data,
+        isEmpty: true,
+      })
+      return;
+    };
+
     const startDate = this.data.start_date;
     const endDate = this.data.end_date;
-    const channel = 
-    //TODO: 获取当前渠道和账号
+    const channel = current_channel.name;
+    const accounts = check_accounts;
     this.setData({ isLoading: true });
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
       return;
     }
-    const params = {
-      "channel": channel,
-      "account": account,
-      "startDate": startDate,
-      "endDate": endDate
+    const params: RequestStatisticsParams = {
+      channel: channel,
+      accounts: accounts,
+      startDate: startDate,
+      endDate: endDate
     }
     const _this = this;
     wx.request({
@@ -183,7 +238,6 @@ Page({
             let cvr = statistics.Cvr == 0 ? "0.00%" : statistics.Cvr + "%";
             let cpa = statistics.Cpa == 0 ? "0.00" : statistics.Cpa + "";
             const newData: Statistics = {
-              Account: statistics.Account,
               Imp: statistics.Imp,
               Click: statistics.Click,
               Cost: statistics.Cost + "",
@@ -245,29 +299,26 @@ Page({
   },
 
   /**
-   * 选项卡改变事件
+   * 渠道标签改变事件
    */
-  changeChannel(e: any) {
-    console.log(e)
-    const index = +e.detail.currentIndex
-    if (index !== this.data.channel_index) {
-      // console.log(channelName)
-      this.setData({
-        channel_index: index
-      })
-      this.requestStatistics();
-    }
+
+  onTabsChannelChangeEvent(e: any): void {
+    const index = e.detail.currentIndex;
+    this.setData({
+      channel_index: index
+    })
   },
 
   /**
-   * 账号选择改变事件
+   * 账号选择框改变事件
    */
-  accountPickerChange(e: any) {
-    const index = +e.detail.value;
-    if (index === this.data.account_index) return
+  onCheckAccountHandler(e: any): void {
+    const accountIndex = +e.detail.key;
+    const accountChecked = e.detail.checked;
+    const channel_list = this.data.channel_list;
+    channel_list[this.data.channel_index].accounts[accountIndex].isChecked = accountChecked;
     this.setData({
-      account_index: index
+      channel_list: channel_list
     })
-    this.requestStatistics()
   }
 })

@@ -17,10 +17,12 @@
   min-height: 100vh;
   margin: 0;
   padding: 0 10px;
-  background-image: linear-gradient(to bottom,
-      #7b56ff 25%,
-      #52e2ff 50%,
-      #ffffff 100%);
+  background-image: linear-gradient(
+    to bottom,
+    #7b56ff 25%,
+    #52e2ff 50%,
+    #ffffff 100%
+  );
   color: var(--greyDark);
   letter-spacing: 0.04rem;
   white-space: nowrap;
@@ -69,7 +71,6 @@
           line-height: 1.2rem;
         }
       }
-
     }
 
     .panel__money:last-of-type {
@@ -119,7 +120,7 @@
         white-space: nowrap;
         text-align: center;
         width: 100%;
-        color: var(--white)
+        color: var(--white);
       }
     }
   }
@@ -258,7 +259,7 @@
     -ms-border-radius: 8px;
     -o-border-radius: 8px;
     box-shadow: 0 0 3px 0px grey;
-    font-size: 1.0rem !important;
+    font-size: 1rem !important;
     line-height: 28px !important;
   }
 
@@ -266,7 +267,42 @@
     border: none !important;
     background-color: transparent;
     color: white;
-    font-size: 1.0rem !important;
+    font-size: 1rem !important;
     line-height: 28px !important;
+  }
+}
+.tabs_container {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  padding: 8rpx;
+  box-sizing: border-box;
+
+  .tabs_view {
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    padding: 8rpx;
+    box-sizing: border-box;
+
+    .tabs_active {
+      border: none !important;
+      background-color: rgba(255, 255, 255, 1);
+      border-radius: 8px;
+      -webkit-border-radius: 8px;
+      -moz-border-radius: 8px;
+      -ms-border-radius: 8px;
+      -o-border-radius: 8px;
+      box-shadow: 0 0 3px 0px grey;
+      font-size: 1rem !important;
+      line-height: 28px !important;
+    }
+
+    .tabs_noactive {
+      border: none !important;
+      background-color: transparent;
+      font-size: 1rem !important;
+      line-height: 28px !important;
+    }
   }
 }

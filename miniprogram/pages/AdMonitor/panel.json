@@ -7,6 +7,14 @@
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
     "l-segment": "../../components/lin-ui/segment",
-    "l-segment-item": "../../components/lin-ui/segment-item"
+    "l-segment-item": "../../components/lin-ui/segment-item",
+    "combined-tabs": "../../components/lin-ui/combined-tabs",
+
+    "l-tabs": "../../components/lin-ui/tabs",
+    "l-tabpanel": "../../components/lin-ui/tabpanel",
+    "l-collapse": "../../components/lin-ui/collapse",
+    "l-collapse-item": "../../components/lin-ui/collapse-item",
+    "l-checkbox-group": "../../components/lin-ui/checkbox-group",
+    "l-checkbox": "../../components/lin-ui/checkbox"
   }
 }
