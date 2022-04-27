@@ -57,6 +57,10 @@ interface RequestStatisticsParams {
   endDate: string;
 }
 
+// interface RequestChannelsParams {
+
+// }
+
 Page({
   /**
    * 页面的初始数据
