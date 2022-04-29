@@ -45,18 +45,21 @@ interface Statistics {
 }
 
 interface AccountInfo {
-  value: string;
+  id: number
+  name: string;
+  nickname: string;
   isChecked: boolean;
   disabled: boolean;
 }
 
 interface RequestStatisticsParams {
-  channel: string;
-  accounts: string[];
+  channelId: number;
+  accountIds: number[];
   startDate: string;
   endDate: string;
 }
 
+const hostPrefix: string = "https://admonitor.catli.net/api_server";
 // interface RequestChannelsParams {
 
 // }
@@ -83,43 +86,39 @@ Page({
     isEmpty: true,
     isShowDateCheck: false,
     //渠道-账号
-    channel_list: [
+    channels: [
       {
         id: 0,
         name: "popin",
-        // account_list: ["Wang_skin01", "Self_White"],
-        // account_index: 0,
         accounts: [
-          { value: 'Wang_skin01', isChecked: false, disabled: false },
-          { value: 'Self_White', isChecked: false, disabled: false }
+          { id: 0, name: 'Wang_skin01', nickname: "鸡皮肤1户", isChecked: false, disabled: false },
+          { id: 1, name: 'Self_White', nickname: '祛斑1户', isChecked: false, disabled: false }
         ]
       },
       {
         id: 1,
         name: "line",
-        // account_list: ["A28490221213", "A79362240622"],
-        // account_index: 0,
         accounts: [
-          { value: 'A28490221213', isChecked: false, disabled: false },
-          { value: 'A79362240622', isChecked: false, disabled: false }
+          { id: 0, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
+          { id: 1, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
         ]
       }
     ],
     channel_index: 0,
+    isFirstLoad: true,
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.requestStatistics();
+    this.firstRequstStatistics();
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady() {
-
   },
 
   /**
@@ -167,17 +166,18 @@ Page({
    */
   requestStatistics() {
     //判断是否有渠道
-    if (this.data.channel_list.length === 0) return;
-    const current_channel = this.data.channel_list[this.data.channel_index]
+    if (this.data.channels.length === 0) return;
+    const current_channel = this.data.channels[this.data.channel_index]
     //判断渠道是否存在
     if (current_channel === undefined) return;
     //判断渠道内是否有账号
-    if (current_channel.accounts.length === 0) return;
+    const accounts = current_channel.accounts;
+    if (accounts.length === 0) return;
     //TODO：准备开发支持多个账号
-    const check_accounts: string[] = [];
-    current_channel.accounts.forEach((account: AccountInfo) => {
+    const check_accounts: number[] = [];
+    accounts.forEach((account: AccountInfo) => {
       if (account.isChecked) {
-        check_accounts.push(account.value);
+        check_accounts.push(account.id);
       }
     });
     //如果没有选中账号，则empty
@@ -203,21 +203,21 @@ Page({
 
     const startDate = this.data.start_date;
     const endDate = this.data.end_date;
-    const channel = current_channel.name;
-    const accounts = check_accounts;
+    const channelId = current_channel.id;
+    const accountIds = check_accounts;
     this.setData({ isLoading: true });
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
       return;
     }
     const params: RequestStatisticsParams = {
-      channel: channel,
-      accounts: accounts,
-      startDate: startDate,
-      endDate: endDate
+      channelId,
+      accountIds,
+      startDate,
+      endDate
     }
     const _this = this;
     wx.request({
-      url: 'https://wx.api.catli.net/admonitor/statistics',
+      url: hostPrefix + '/statistics',
       method: 'POST',
       data: params,
       header: {
@@ -265,6 +265,16 @@ Page({
           isEmpty: true,
         })
       },
+    });
+  },
+
+  /**
+   * 第一次加载
+   */
+  firstRequstStatistics(){
+    this.requestStatistics();
+    this.setData({
+      isFirstLoad: false,
     });
   },
   /**
@@ -319,10 +329,10 @@ Page({
   onCheckAccountHandler(e: any): void {
     const accountIndex = +e.detail.key;
     const accountChecked = e.detail.checked;
-    const channel_list = this.data.channel_list;
-    channel_list[this.data.channel_index].accounts[accountIndex].isChecked = accountChecked;
+    const channels = this.data.channels;
+    channels[this.data.channel_index].accounts[accountIndex].isChecked = accountChecked;
     this.setData({
-      channel_list: channel_list
+      channels: channels
     })
   }
 })

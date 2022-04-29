@@ -1,6 +1,6 @@
 <!-- pages/AdMonitor/panel.wxml -->
 <template name="accountItem">
-  <view class="account_picker_item">{{account_list[account_index]}}</view>
+  <view class="account_picker_item">{{accounts[account_index]}}</view>
 </template>
 <view class="container">
   <l-transition show="{{ true }}" name="fade-down">
@@ -39,7 +39,7 @@
   <!-- 标签页 -->
   <view class="tabs_container">
     <l-tabs bind:linchange="onTabsChannelChangeEvent" animated="{{false}}" swipeable="{{false}}" has-line="{{false}}" l-header-class="tabs_view" l-active-class="tabs_active" l-inactive-class="tabs_noactive" l-content-class="tabs_content" l-tabimage-class="tabs_img">
-      <block wx:for="{{channel_list}}" wx:key="id" wx:for-index="idx" wx:for-item="channel">
+      <block wx:for="{{channels}}" wx:key="id" wx:for-index="idx" wx:for-item="channel">
         <l-tabpanel tab="{{channel.name}}" key="{{idx}}" slot="{{idx+'.tab'}}">
           <view class="tab-content">
             <!-- 手风琴 -->
