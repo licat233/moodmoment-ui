@@ -1,6 +1,5 @@
 // pages/AdMonitor/panel.ts
 import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
-import { twd2cny, cny2twd } from '../../utils/calculate';
 
 // interface PanelData {
 //   total_cny: Number; //总人民币
@@ -12,40 +11,37 @@ import { twd2cny, cny2twd } from '../../utils/calculate';
 interface ResponseData {
   success: boolean;
   message: string;
-  data: any;
-}
-
-interface StatisticsData {
-  Account: string;
-  Click: number;
-  Cost: number;
-  Cpa: number;
-  CreateAt: string;
-  Ctr: number;
-  Currency: string;
-  Cv: number;
-  Cvr: number;
-  Id: number;
-  Imp: number;
-  RecordDate: string;
-  Status: number;
-  Type: string;
-  UpdateAt: string;
+  data: Statistics | null;
 }
 
 interface Statistics {
-  Cost: string;
-  Imp: number;
-  Click: number;
-  Ctr: string;
-  Cv: number;
-  Cvr: string;
-  Cpa: string;
-  Currency: string;
+  id: number;
+  channelId: number;
+  accountId: number;
+  cost: string;
+  costCny: string;
+  imp: string;
+  click: string;
+  ctr: string;
+  cv: string;
+  cvr: string;
+  cpa: string;
+  type: string;
+  currency: string;
+  status: boolean;
+  recordDate: string;
+  createAt: string;
+  updateAt: string;
+}
+
+interface ChannelInfo {
+  id: number;
+  name: string;
+  accounts: AccountInfo[];
 }
 
 interface AccountInfo {
-  id: number
+  id: number;
   name: string;
   nickname: string;
   isChecked: boolean;
@@ -60,6 +56,51 @@ interface RequestStatisticsParams {
 }
 
 const hostPrefix: string = "https://admonitor.catli.net/api_server";
+const defaultStatistic: Statistics = {
+  id: 0,
+  channelId: 0,
+  accountId: 0,
+  cost: "0.00",
+  costCny: "0.00",
+  imp: '0',
+  click: '0',
+  ctr: "0.00%",
+  cv: '0',
+  cvr: "0.00%",
+  cpa: "0.00",
+  currency: "TWD",
+  type: 'logic',
+  status: false,
+  recordDate: formatDate(nowLogicDate()),
+  createAt: '',
+  updateAt: ''
+}
+const defaultChannels: ChannelInfo[] = [
+  {
+    id: 1,
+    name: "popin",
+    accounts: [
+      { id: 1, name: 'Wang_skin01', nickname: "鸡皮肤1户", isChecked: true, disabled: false },
+      { id: 2, name: 'Self_White', nickname: '祛斑1户', isChecked: false, disabled: false }
+    ]
+  },
+  {
+    id: 2,
+    name: "line",
+    accounts: [
+      { id: 1, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
+      { id: 2, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
+    ]
+  },
+  {
+    id: 3,
+    name: "dable",
+    accounts: [
+      { id: 1, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
+      { id: 2, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
+    ]
+  }
+]
 // interface RequestChannelsParams {
 
 // }
@@ -69,41 +110,13 @@ Page({
    * 页面的初始数据
    */
   data: {
-    statistics: {
-      Imp: 0,
-      Click: 0,
-      Cost: "0.00",
-      Cpa: "0.00",
-      Ctr: "0.00%",
-      Cv: 0,
-      Cvr: "0.00%",
-      Currency: "TWD"
-    },
-    total_cny: "0.00",
-    total_twd: "0.00",
+    statistics: defaultStatistic,
     start_date: formatDate(nowLogicDate()),
     end_date: formatDate(nowLogicDate()),
     isEmpty: true,
     isShowDateCheck: false,
     //渠道-账号
-    channels: [
-      {
-        id: 0,
-        name: "popin",
-        accounts: [
-          { id: 0, name: 'Wang_skin01', nickname: "鸡皮肤1户", isChecked: false, disabled: false },
-          { id: 1, name: 'Self_White', nickname: '祛斑1户', isChecked: false, disabled: false }
-        ]
-      },
-      {
-        id: 1,
-        name: "line",
-        accounts: [
-          { id: 0, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
-          { id: 1, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
-        ]
-      }
-    ],
+    channels: defaultChannels,
     channel_index: 0,
     isFirstLoad: true,
   },
@@ -112,7 +125,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.firstRequstStatistics();
+    this.firstRequestStatistics();
   },
 
   /**
@@ -175,27 +188,16 @@ Page({
     if (accounts.length === 0) return;
     //TODO：准备开发支持多个账号
     const check_accounts: number[] = [];
-    accounts.forEach((account: AccountInfo) => {
+    accounts.forEach((account) => {
       if (account.isChecked) {
         check_accounts.push(account.id);
       }
     });
     //如果没有选中账号，则empty
     if (check_accounts.length === 0) {
-      const data: Statistics = {
-        Cost: '',
-        Imp: 0,
-        Click: 0,
-        Ctr: '',
-        Cv: 0,
-        Cvr: '',
-        Cpa: '',
-        Currency: 'TWD'
-      }
+      console.log("没有选中账户")
       this.setData({
-        total_cny: "0.00",
-        total_twd: "0.00",
-        statistics: data,
+        statistics: defaultStatistic,
         isEmpty: true,
       })
       return;
@@ -203,15 +205,13 @@ Page({
 
     const startDate = this.data.start_date;
     const endDate = this.data.end_date;
-    const channelId = current_channel.id;
-    const accountIds = check_accounts;
     this.setData({ isLoading: true });
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
       return;
     }
     const params: RequestStatisticsParams = {
-      channelId,
-      accountIds,
+      channelId: current_channel.id,
+      accountIds: check_accounts,
       startDate,
       endDate
     }
@@ -228,33 +228,9 @@ Page({
           const result = res.data as ResponseData
           // console.log(result)
           if (result.success) {
-            const statistics = result.data as StatisticsData
-            let cny = "0.00";
-            let twd = "0.00";
-            if (statistics.Currency === "TWD") {
-              twd = statistics.Cost + "";
-              cny = twd2cny(statistics.Cost)
-            } else if (statistics.Currency === "CNY") {
-              cny = statistics.Cost + "";
-              twd = cny2twd(statistics.Cost);
-            };
-            let ctr = statistics.Ctr == 0 ? "0.00%" : statistics.Ctr + "%";
-            let cvr = statistics.Cvr == 0 ? "0.00%" : statistics.Cvr + "%";
-            let cpa = statistics.Cpa == 0 ? "0.00" : statistics.Cpa + "";
-            const newData: Statistics = {
-              Imp: statistics.Imp,
-              Click: statistics.Click,
-              Cost: statistics.Cost + "",
-              Cpa: cpa,
-              Ctr: ctr,
-              Cv: statistics.Cv,
-              Cvr: cvr,
-              Currency: statistics.Currency
-            }
+            const statistics = result.data as Statistics
             _this.setData({
-              statistics: newData,
-              total_cny: cny,
-              total_twd: twd,
+              statistics: statistics,
               isEmpty: false
             });
           }
@@ -271,7 +247,7 @@ Page({
   /**
    * 第一次加载
    */
-  firstRequstStatistics(){
+  firstRequestStatistics() {
     this.requestStatistics();
     this.setData({
       isFirstLoad: false,

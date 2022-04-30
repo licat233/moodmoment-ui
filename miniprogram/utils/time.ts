@@ -22,14 +22,21 @@ export const formatDate = (date: Date): string => {
   const year: number = date.getFullYear();
   const month: any = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
   const day: any = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-  return year + '-' + month + '-' + day;
+  return year + '/' + month + '/' + day;
+};
+
+export const formatDates = (date: Date, fix: string): string => {
+  const year: number = date.getFullYear();
+  const month: any = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+  const day: any = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+  return year + fix + month + fix + day;
 };
 
 export const formatDateDetail = (Year: number, Month: number, Day: number): string => {
   const year: number = Year;
   const month: any = Month < 10 ? '0' + Month : Month;
   const day: any = Day < 10 ? '0' + Day : Day;
-  return year + '-' + month + '-' + day;
+  return year + '/' + month + '/' + day;
 };
 
 export const checkAuditTime = (beginTime: string, endTime: string): boolean => {
@@ -39,13 +46,13 @@ export const checkAuditTime = (beginTime: string, endTime: string): boolean => {
 
   const beginIndex = beginTime.lastIndexOf("\:");
   const beginHour = parseInt(beginTime.substring(0, beginIndex));
-  const beginMinue = parseInt(beginTime.substring(beginIndex + 1, beginTime.length));
-  beginDate.setHours(beginHour, beginMinue, 0, 0);
+  const beginMinute = parseInt(beginTime.substring(beginIndex + 1, beginTime.length));
+  beginDate.setHours(beginHour, beginMinute, 0, 0);
 
   const endIndex = endTime.lastIndexOf("\:");
   const endHour = parseInt(endTime.substring(0, endIndex));
-  const endMinue = parseInt(endTime.substring(endIndex + 1, endTime.length));
-  endDate.setHours(endHour, endMinue, 0, 0);
+  const endMinute = parseInt(endTime.substring(endIndex + 1, endTime.length));
+  endDate.setHours(endHour, endMinute, 0, 0);
   return nowDate.getTime() - beginDate.getTime() >= 0 && nowDate.getTime() <= endDate.getTime();
 }
 
