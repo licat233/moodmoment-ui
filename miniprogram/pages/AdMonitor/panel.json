@@ -4,12 +4,8 @@
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
-  "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "l-segment": "../../components/lin-ui/segment",
-    "l-segment-item": "../../components/lin-ui/segment-item",
-    "combined-tabs": "../../components/lin-ui/combined-tabs",
-
+    "date": "../../components/date",
     "l-tabs": "../../components/lin-ui/tabs",
     "l-tabpanel": "../../components/lin-ui/tabpanel",
     "l-collapse": "../../components/lin-ui/collapse",

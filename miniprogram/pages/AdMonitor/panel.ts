@@ -1,21 +1,15 @@
 // pages/AdMonitor/panel.ts
 import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
 
-// interface PanelData {
-//   total_cny: Number; //总人民币
-//   total_twd: Number; //总台币
-//   start_date: String; //开始日期
-//   end_date: String; //结束日期
-// }
-
 interface ResponseData {
   success: boolean;
   message: string;
-  data: Statistics | null;
+  data: unknown;
 }
 
 interface Statistics {
   id: number;
+  identifier: string;
   channelId: number;
   accountId: number;
   cost: string;
@@ -34,20 +28,6 @@ interface Statistics {
   updateAt: string;
 }
 
-interface ChannelInfo {
-  id: number;
-  name: string;
-  accounts: AccountInfo[];
-}
-
-interface AccountInfo {
-  id: number;
-  name: string;
-  nickname: string;
-  isChecked: boolean;
-  disabled: boolean;
-}
-
 interface RequestStatisticsParams {
   channelId: number;
   accountIds: number[];
@@ -55,9 +35,50 @@ interface RequestStatisticsParams {
   endDate: string;
 }
 
+interface ChannelDetail {
+  name: string;
+  email: string;
+  passport: string;
+  password: string;
+  domain: string;
+  status: boolean;
+  createAt: string;
+  updateAt: string;
+}
+
+interface AccountDetail {
+  aid: string;
+  name: string;
+  nickname: string;
+  channelId: number;
+  status: boolean;
+  createAt: string;
+  updateAt: string;
+}
+
+interface Account {
+  id: number;
+  accountDetail: AccountDetail;
+  isChecked: boolean;
+  disabled: boolean;
+}
+
+interface ChannelInfo {
+  id: number;
+  channelDetail: ChannelDetail;
+  accounts: Account[];
+}
+
+interface ChannelsAccountsRequest {
+  channelStatus: number;
+  accountStatus: number;
+}
+
+/** 默认数据 */
 const hostPrefix: string = "https://admonitor.catli.net/api_server";
 const defaultStatistic: Statistics = {
   id: 0,
+  identifier: "0_0_2022-05-01_logic",
   channelId: 0,
   accountId: 0,
   cost: "0.00",
@@ -75,37 +96,19 @@ const defaultStatistic: Statistics = {
   createAt: '',
   updateAt: ''
 }
-const defaultChannels: ChannelInfo[] = [
-  {
-    id: 1,
-    name: "popin",
-    accounts: [
-      { id: 1, name: 'Wang_skin01', nickname: "鸡皮肤1户", isChecked: true, disabled: false },
-      { id: 2, name: 'Self_White', nickname: '祛斑1户', isChecked: false, disabled: false }
-    ]
-  },
-  {
-    id: 2,
-    name: "line",
-    accounts: [
-      { id: 1, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
-      { id: 2, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
-    ]
-  },
-  {
-    id: 3,
-    name: "dable",
-    accounts: [
-      { id: 1, name: 'A28490221213', nickname: "祛斑", isChecked: false, disabled: false },
-      { id: 2, name: 'A79362240622', nickname: "鸡皮肤", isChecked: false, disabled: false }
-    ]
-  }
-]
-// interface RequestChannelsParams {
+const defaultChannels: ChannelInfo[] = []
+const massages: Record<string, string> = {
+  noData: 'no analytics data',
+  noAccount: 'no account',
+  noChecked: 'no checked account',
+  serverError: 'server error',
+  loadingData: 'Loading data ...',
+  noPowerView: 'not authorized'
+}
 
-// }
-
+/** 默认数据end */
 Page({
+
   /**
    * 页面的初始数据
    */
@@ -119,13 +122,14 @@ Page({
     channels: defaultChannels,
     channel_index: 0,
     isFirstLoad: true,
+    massage: massages.loadingData,
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.firstRequestStatistics();
+    this.requestChannelsAndAccounts();
   },
 
   /**
@@ -175,6 +179,61 @@ Page({
   },
 
   /**
+   * 无权限事件
+   */
+  noPowerHandler() {
+    this.setData({
+      massage: massages.noPowerView
+    })
+  },
+
+  /**
+   * 请求所有渠道数据
+   */
+  requestChannelsAndAccounts() {
+    const _this = this;
+    const params: ChannelsAccountsRequest = {
+      channelStatus: -1,
+      accountStatus: 1,
+    } 
+    wx.request({
+      url: `${hostPrefix}/channelsAccounts`,
+      method: 'POST',
+      data: params,
+      header: {
+        'Authorization': wx.getStorageSync('token')
+      },
+      success: (res: any) => {
+        if (res.statusCode === 401){
+          _this.noPowerHandler();
+          return;
+        }
+        if (res.statusCode === 200) {
+          if (res.data.success) {
+            const result = res.data as ResponseData
+            // console.log(result)
+            if (result.success) {
+              const channels = result.data as ChannelInfo[]
+              _this.setData({
+                channels: channels,
+              });
+            }
+          }
+        }
+      },
+      fail(err: any) {
+        console.log(err)
+        _this.setData({
+          massage: massages.serverError
+        })
+      },
+      complete() {
+        _this.requestStatistics();
+      }
+    })
+  },
+
+  /**
    * 请求statistics数据
    */
   requestStatistics() {
@@ -183,10 +242,17 @@ Page({
     const current_channel = this.data.channels[this.data.channel_index]
     //判断渠道是否存在
     if (current_channel === undefined) return;
-    //判断渠道内是否有账号
     const accounts = current_channel.accounts;
-    if (accounts.length === 0) return;
-    //TODO：准备开发支持多个账号
+    //判断渠道内是否有账号
+    if (accounts.length === 0) {
+      //如果没有账号
+      this.setData({
+        statistics: defaultStatistic,
+        isEmpty: true,
+        massage: massages.noAccount
+      })
+      return;
+    };
     const check_accounts: number[] = [];
     accounts.forEach((account) => {
       if (account.isChecked) {
@@ -199,6 +265,7 @@ Page({
       this.setData({
         statistics: defaultStatistic,
         isEmpty: true,
+        massage: massages.noChecked
       })
       return;
     };
@@ -221,13 +288,24 @@ Page({
       method: 'POST',
       data: params,
       header: {
-        'content-type': 'application/json' // 默认值
+        'Authorization': wx.getStorageSync('token')
       },
       success(res) {
+        if (res.statusCode === 401){
+          _this.noPowerHandler();
+          return;
+        }
         if (res.statusCode === 200) {
           const result = res.data as ResponseData
-          // console.log(result)
           if (result.success) {
+            if (result.data == null) {
+              _this.setData({
+                statistics: defaultStatistic,
+                isEmpty: true,
+                massage: massages.noData
+              })
+              return
+            }
             const statistics = result.data as Statistics
             _this.setData({
               statistics: statistics,
@@ -239,6 +317,7 @@ Page({
       fail() {
         _this.setData({
           isEmpty: true,
+          massage: massages.serverError
         })
       },
     });
@@ -294,21 +373,34 @@ Page({
 
   onTabsChannelChangeEvent(e: any): void {
     const index = e.detail.currentIndex;
+    if (index === undefined) return;
     this.setData({
       channel_index: index
     })
+    this.requestStatistics();
   },
 
   /**
    * 账号选择框改变事件
    */
   onCheckAccountHandler(e: any): void {
-    const accountIndex = +e.detail.key;
-    const accountChecked = e.detail.checked;
+    const accountId = +e.detail.key;
+    if (accountId === undefined) return;
+    const checkStatus = e.detail.checked;
+    if (checkStatus === undefined) return;
     const channels = this.data.channels;
-    channels[this.data.channel_index].accounts[accountIndex].isChecked = accountChecked;
+    const accounts = channels[this.data.channel_index].accounts;
+    if (accounts === undefined) return;
+    const n = accounts.length;
+    for (let i = 0; i < n; i++) {
+      if (accounts[i].id === accountId) {
+        accounts[i].isChecked = checkStatus;
+        break;
+      }
+    }
     this.setData({
       channels: channels
     })
+    this.requestStatistics();
   }
 })

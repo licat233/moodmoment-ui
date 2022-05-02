@@ -9,17 +9,17 @@
         <view class="panel__show">
           <view class="panel__money">
             <text class="cny">¥</text>
-            <text class="cny" space="nbsp"> {{ statistics.costCny }}</text>
+            <text class="cny" space="nbsp">{{ statistics.costCny }}</text>
           </view>
           <view class="panel__money">
             <text class="twd">NT$</text>
-            <text class="twd" space="nbsp"> {{ statistics.cost }}</text>
+            <text class="twd" space="nbsp">{{ statistics.cost }}</text>
           </view>
         </view>
       </view>
       <!-- 日期选择 -->
       <view class="panel_date">
-        <date isShow="{{isShowDateCheck}}" minDate="2022/03/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
+        <date isShow="{{isShowDateCheck}}" minDate="2022/05/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
         <!-- 官方日期选择器 -->
         <view class="panel_picker_date">
           <view class="panel_picker_date_content" bindtap="showDateCheck">
@@ -39,39 +39,39 @@
   <!-- 标签页 -->
   <view class="tabs_container">
     <l-tabs bind:linchange="onTabsChannelChangeEvent" animated="{{false}}" swipeable="{{false}}" has-line="{{false}}" l-header-class="tabs_view" l-active-class="tabs_active" l-inactive-class="tabs_noactive" l-content-class="tabs_content" l-tabimage-class="tabs_img">
-      <block wx:for="{{channels}}" wx:key="id" wx:for-index="idx" wx:for-item="channel">
-        <l-tabpanel tab="{{channel.name}}" key="{{idx}}" slot="">
+      <!-- 渠道选择 -->
+      <block wx:for="{{channels}}" wx:key="id" wx:for-item="channelInfo">
+        <l-tabpanel tab="{{channelInfo.channelDetail.name}}" key="{{channelInfo.id}}" slot="{{channelInfo.id}}">
           <view class="tab-content">
-            <!-- 手风琴 -->
-            <l-collapse>
-              <l-collapse-item space="nbsp" title="{{channel.name}} 账号">
+            <!-- style手风琴 -->
+            <l-collapse type='accordion'>
+              <l-collapse-item title="账号列表">
                 <l-checkbox-group bind:linchange="onCheckAccountHandler">
-                 <!-- 账号选择 -->
-                  <l-checkbox wx:for-items="{{channel.accounts}}" wx:for-item="account" wx:key="{{account.id}}" key="{{account.id}}" checked="{{account.isChecked}}" disabled="{{account.disabled}}">
-                    {{account.name}}-{{account.nickname}}
+                  <!-- 账号选择 -->
+                  <l-checkbox wx:for-items="{{channelInfo.accounts}}" wx:for-item="account" wx:key="id" min-selected="{{1}}" key="{{account.id}}" checked="{{account.isChecked}}" disabled="{{account.disabled}}">
+                    {{account.accountDetail.name}}
                   </l-checkbox>
-                   <!-- 账号选择end -->
+                  <!-- 账号选择end -->
                 </l-checkbox-group>
               </l-collapse-item>
             </l-collapse>
-            <!-- 手风琴end -->
+            <!-- style手风琴end -->
           </view>
         </l-tabpanel>
       </block>
+      <!-- 渠道选择end -->
     </l-tabs>
   </view>
   <!-- 标签页end -->
   <l-transition show="{{true}}" name="fade-up">
     <view class="panel_details">
       <view class="panel_content">
-       
         <view class="adaccount_box">
           <text class="adaccount">Recent Ad statistics</text>
         </view>
-       
         <view class="panel_empty" wx:if="{{isEmpty}}">
           <text class="iconfont icon-statistics"></text>
-          <text class="alert">analytics data</text>
+          <text class="alert">{{massage}}</text>
         </view>
         <view class="statistics" wx:if="{{!isEmpty}}">
           <view class="statistics_list">
@@ -83,7 +83,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Cost}}</view>
+              <view class="value">{{statistics.cost}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -93,7 +93,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Imp}}</view>
+              <view class="value">{{statistics.imp}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -103,7 +103,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Click}}</view>
+              <view class="value">{{statistics.click}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -113,7 +113,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Ctr}}</view>
+              <view class="value">{{statistics.ctr}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -123,7 +123,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Cv}}</view>
+              <view class="value">{{statistics.cv}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -133,7 +133,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Cvr}}</view>
+              <view class="value">{{statistics.cvr}}</view>
             </view>
             <view class="statistics_item">
               <view class="name">
@@ -143,7 +143,7 @@
               <view class="drawLinebox">
                 <view class="drawLine"></view>
               </view>
-              <view class="value">{{statistics.Cpa}}</view>
+              <view class="value">{{statistics.cpa}}</view>
             </view>
           </view>
         </view>

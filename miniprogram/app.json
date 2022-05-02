@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/AdMonitor/panel",
     "pages/index/index",
+    "pages/AdMonitor/panel",
     "pages/logs/logs",
     "pages/my/my"
   ],
@@ -16,7 +16,7 @@
   "Subpackages": [],
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "l-transition": "./components/lin-ui/transition/index"
+    "l-transition": "./components/lin-ui/transition"
   },
   "tabBar": {
     "custom": false,

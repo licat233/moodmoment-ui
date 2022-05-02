@@ -13,7 +13,10 @@ Page({
   },
   // 事件处理函数
   bindViewTap() {
-    wx.navigateTo({
+    // wx.navigateTo({
+    //   url: '../logs/logs',
+    // })
+    wx.switchTab({
       url: '../logs/logs',
     })
   },
@@ -45,18 +48,9 @@ Page({
       userInfo: e.detail.userInfo,
       hasUserInfo: true
     })
-  }
-})
-
-Component({
-  pageLifetimes: {
-    show() {
-      if (typeof this.getTabBar === 'function' &&
-        this.getTabBar()) {
-        this.getTabBar().setData({
-          selected: 0
-        })
-      }
-    }
+  },
+  /**获取手机号 */
+  getPhoneNumber(e: any) {
+    console.log(e)
   }
 })

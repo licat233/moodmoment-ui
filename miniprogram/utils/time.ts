@@ -25,7 +25,7 @@ export const formatDate = (date: Date): string => {
   return year + '/' + month + '/' + day;
 };
 
-export const formatDates = (date: Date, fix: string): string => {
+export const formatDate2 = (date: Date, fix: string): string => {
   const year: number = date.getFullYear();
   const month: any = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
   const day: any = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
