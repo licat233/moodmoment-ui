@@ -261,7 +261,6 @@ Page({
     });
     //如果没有选中账号，则empty
     if (check_accounts.length === 0) {
-      console.log("没有选中账户")
       this.setData({
         statistics: defaultStatistic,
         isEmpty: true,
