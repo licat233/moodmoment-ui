@@ -4,5 +4,8 @@
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
-  "usingComponents": {}
+  "usingComponents": {
+    "l-card":"../../components/lin-ui/card"
+
+  }
 }

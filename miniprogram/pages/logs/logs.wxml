@@ -1,6 +1,12 @@
 <!--logs.wxml-->
 <view class="container log-list">
   <block wx:for="{{logs}}" wx:key="timeStamp" wx:for-item="log">
-    <text class="log-item">{{index + 1}}. {{log.date}}</text>
+    <view class="log-item">
+      <l-card type="primary" plaintext="{{true}}" title="登录日志">
+        <view class="content">
+          {{log.date}}
+        </view>
+      </l-card>
+    </view>
   </block>
 </view>

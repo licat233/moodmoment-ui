@@ -4,5 +4,7 @@
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
-  "usingComponents": {}
+  "usingComponents": {
+    "l-avatar": "../../components/lin-ui/avatar"
+  }
 }

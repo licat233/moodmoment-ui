@@ -91,7 +91,6 @@
       line-height: 70rpx;
       margin: 0 5px;
       padding: 0 8px 0 4px;
-      border: 1rpx solid var(--greyDark);
       border-radius: 14rpx;
       // background-color: white;
       background-color: transparent;
@@ -274,29 +273,28 @@
 }
 .tabs_container {
   background-color: rgba(255, 255, 255, 0.6);
-  border-radius: 8px;
-  padding: 8rpx;
+  border-radius: 16rpx;
+  padding: 10rpx;
   box-sizing: border-box;
 
   .tabs_view {
     font-size: 1rem;
     font-weight: 600;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    padding: 8rpx;
+    // background-color: rgba(255, 255, 255, 1);
+    border-radius: 20rpx;
+    // padding: 8rpx;
+    overflow: hidden;
     box-sizing: border-box;
 
     .tabs_active {
       border: none !important;
-      background-color: rgba(255, 255, 255, 1);
-      border-radius: 8px;
-      -webkit-border-radius: 8px;
-      -moz-border-radius: 8px;
-      -ms-border-radius: 8px;
-      -o-border-radius: 8px;
+      background-color: white;
+      border-radius: 20rpx;
       box-shadow: 0 0 3px 0px grey;
       font-size: 1rem !important;
       line-height: 28px !important;
+      color: var(--primary) !important;
+      text-shadow: 2px 2px 2px cyan;
     }
 
     .tabs_noactive {
@@ -306,4 +304,7 @@
       line-height: 28px !important;
     }
   }
+}
+.checkbox-style{
+  // color: var(--primary) !important;
 }

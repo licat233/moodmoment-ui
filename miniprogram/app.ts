@@ -27,6 +27,7 @@ export const Login = () => {
               const result = res.data as ResponseData
               // console.log(result)
               if (result.success) {
+                console.log("登录成功")
                 const token = (result.data as TokenData).token;
                 wx.setStorageSync('token', token)
               }
@@ -38,26 +39,32 @@ export const Login = () => {
   })
 }
 
-export const Ping = () => {
-  let ok = false;
-  new Promise((resolve, reject) => {
+export const Ping = async () => {
+  return await new Promise((resolve, reject) => {
     wx.request({
       url: "https://admonitor.catli.net/api_server/ping",
       method: "GET",
       header: { "Authorization": wx.getStorageSync('token') },
       success: (res: any) => {
-        if (res.statusCode === 200) {
-          ok = res.data.success
+        switch (res.statusCode) {
+          case 200:
+            const resp = res.data as ResponseData
+            resolve(resp.success)
+            return
+          case 401:
+            reject(false)
+            return
+          case 500:
+            throw "服务器出现错误";
+          default:
+            throw "ping请求出现错误";
         }
       },
-      fail: () => {
-        resolve(ok)
+      fail: (err: any) => {
+        throw "服务器出现错误" + err;
       }
     });
-  }).then(() => {
-      return ok
-    })
-  return ok;
+  })
 }
 
 App<IAppOption>({
@@ -68,6 +75,8 @@ App<IAppOption>({
     const logs = wx.getStorageSync('logs') || []
     logs.unshift(Date.now())
     wx.setStorageSync('logs', logs)
-    if (!Ping()) Login()
+    Ping().catch(() => {
+      Login()
+    })
   },
 })

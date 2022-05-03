@@ -8,12 +8,10 @@
       <view class="panel__total">
         <view class="panel__show">
           <view class="panel__money">
-            <text class="cny">¥</text>
-            <text class="cny" space="nbsp">{{ statistics.costCny }}</text>
+            <l-price unit="¥" autofix="{{true}}" reserve-digit="2" unit-color="var(--white)" value-color="var(--white)" unit-size="40" value-size="70" value="{{ statistics.costCny }}"></l-price>
           </view>
           <view class="panel__money">
-            <text class="twd">NT$</text>
-            <text class="twd" space="nbsp">{{ statistics.cost }}</text>
+            <l-price unit="NT$" autofix="{{true}}" reserve-digit="2" unit-color="var(--white)" value-color="var(--white)" unit-size="26" value-size="40" value="{{ statistics.cost }}"></l-price>
           </view>
         </view>
       </view>
@@ -38,7 +36,7 @@
   </l-transition>
   <!-- 标签页 -->
   <view class="tabs_container">
-    <l-tabs bind:linchange="onTabsChannelChangeEvent" animated="{{false}}" swipeable="{{false}}" has-line="{{false}}" l-header-class="tabs_view" l-active-class="tabs_active" l-inactive-class="tabs_noactive" l-content-class="tabs_content" l-tabimage-class="tabs_img">
+    <l-tabs bind:linchange="onTabsChannelChangeEvent" animated="{{false}}" animated-for-line="{{false}}" swipeable="{{false}}" scrollable="{{false}}" has-line="{{false}}" l-header-class="tabs_view" l-active-class="tabs_active" l-inactive-class="tabs_noactive" l-content-class="tabs_content" l-tabimage-class="tabs_img">
       <!-- 渠道选择 -->
       <block wx:for="{{channels}}" wx:key="id" wx:for-item="channelInfo">
         <l-tabpanel tab="{{channelInfo.channelDetail.name}}" key="{{channelInfo.id}}" slot="{{channelInfo.id}}">
@@ -48,7 +46,7 @@
               <l-collapse-item title="账号列表">
                 <l-checkbox-group bind:linchange="onCheckAccountHandler">
                   <!-- 账号选择 -->
-                  <l-checkbox wx:for-items="{{channelInfo.accounts}}" wx:for-item="account" wx:key="id" min-selected="{{1}}" key="{{account.id}}" checked="{{account.isChecked}}" disabled="{{account.disabled}}">
+                  <l-checkbox wx:for-items="{{channelInfo.accounts}}" wx:for-item="account" wx:key="id" min-selected="{{1}}" key="{{account.id}}" checked="{{account.isChecked}}" disabled="{{account.disabled}}" select-color="var(--primary)" l-class="checkbox-style">
                     {{account.accountDetail.name}}
                   </l-checkbox>
                   <!-- 账号选择end -->

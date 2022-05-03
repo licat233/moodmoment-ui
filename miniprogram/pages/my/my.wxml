@@ -1,2 +1,6 @@
 <!--pages/my/my.wxml-->
-<text>pages/my/my.wxml</text>
+<view class="container">
+  <view class="content-top">
+    <l-avatar size="160" bindtap="getUserProfile" text="{{userInfo.name}}" placement="bottom" src="{{userInfo.avatar}}" />
+  </view>
+</view>

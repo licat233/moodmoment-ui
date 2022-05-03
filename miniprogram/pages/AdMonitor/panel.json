@@ -11,6 +11,7 @@
     "l-collapse": "../../components/lin-ui/collapse",
     "l-collapse-item": "../../components/lin-ui/collapse-item",
     "l-checkbox-group": "../../components/lin-ui/checkbox-group",
-    "l-checkbox": "../../components/lin-ui/checkbox"
+    "l-checkbox": "../../components/lin-ui/checkbox",
+    "l-price": "../../components/lin-ui/price"
   }
 }
