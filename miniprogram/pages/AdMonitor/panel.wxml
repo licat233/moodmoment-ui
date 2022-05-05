@@ -18,7 +18,7 @@
       <!-- 日期选择 -->
       <view class="panel_date">
         <!-- 日期选择器 -->
-        <date isShow="{{isShowDateCheck}}" minDate="2022/05/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" />
+        <date isShow="{{isShowDateCheck}}" minDate="2022/05/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" currentDate="2022/05/01"/>
         <!-- 日期选择器end -->
         <!-- 日期范围 -->
         <view class="panel_picker_date">

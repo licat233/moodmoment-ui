@@ -1,6 +1,6 @@
 // pages/AdMonitor/panel.ts
 import { Login } from '../../app';
-import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
+import { formatDate, nowLogicDate, formatDateDetail,formatDate2 } from '../../utils/time';
 const app = getApp<IAppOption>()
 interface Statistics {
   id: number;
@@ -114,16 +114,17 @@ const massages: Record<string, string> = {
   noPowerView: 'not authorized'
 }
 
+const defaultDate: string = formatDate(nowLogicDate())
+
 /** 默认数据end */
 Page({
-
   /**
    * 页面的初始数据
    */
   data: {
     statistics: defaultStatistic,
-    start_date: formatDate(nowLogicDate()),
-    end_date: formatDate(nowLogicDate()),
+    start_date: defaultDate,
+    end_date: defaultDate,
     isEmpty: true,
     isShowDateCheck: false,
     //渠道-账号
@@ -442,15 +443,17 @@ Page({
     // if (e.currentTarget.id !== "dateRange") return;
     const startDate = formatDateDetail(e.detail.start.year, e.detail.start.month, e.detail.start.date)
     const endDate = formatDateDetail(e.detail.end.year, e.detail.end.month, e.detail.end.date)
-    const startEqual = startDate === this.data.start_date
-    const endEqual = endDate === this.data.end_date
-    if (startEqual && endEqual) return;
-    if (!startEqual) {
-      this.setData({ start_date: startDate });
-    }
-    if (!endEqual) {
-      this.setData({ end_date: endDate });
-    }
+    this.setData({ start_date: startDate, end_date: endDate });
+    // console.log(startDate,"-",endDate)
+    // const startEqual = startDate === this.data.start_date
+    // const endEqual = endDate === this.data.end_date
+    // if (startEqual && endEqual) return;
+    // if (!startEqual) {
+    //   this.setData({ start_date: startDate });
+    // }
+    // if (!endEqual) {
+    //   this.setData({ end_date: endDate });
+    // }
     this.requestStatistics();
   },
 

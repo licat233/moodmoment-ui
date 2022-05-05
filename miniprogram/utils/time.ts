@@ -7,7 +7,7 @@ export const formatTime = (date: Date): string => {
   const second = date.getSeconds()
 
   return (
-    [year, month, day].map(formatNumber).join('/') +
+    [year, month, day].map(formatNumber).join('-') +
     ' ' +
     [hour, minute, second].map(formatNumber).join(':')
   )
@@ -22,7 +22,7 @@ export const formatDate = (date: Date): string => {
   const year: number = date.getFullYear();
   const month: any = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
   const day: any = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-  return year + '/' + month + '/' + day;
+  return year + '-' + month + '-' + day;
 };
 
 export const formatDate2 = (date: Date, fix: string): string => {
@@ -36,7 +36,7 @@ export const formatDateDetail = (Year: number, Month: number, Day: number): stri
   const year: number = Year;
   const month: any = Month < 10 ? '0' + Month : Month;
   const day: any = Day < 10 ? '0' + Day : Day;
-  return year + '/' + month + '/' + day;
+  return year + '-' + month + '-' + day;
 };
 
 export const checkAuditTime = (beginTime: string, endTime: string): boolean => {
