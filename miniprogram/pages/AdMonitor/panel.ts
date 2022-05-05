@@ -74,6 +74,15 @@ interface ChannelsAccountsRequest {
   accountStatus: number;
 }
 
+interface CacheUserCheck {
+  channelId: number;
+  accountIds: number[];
+}
+
+interface PanelSet {
+  userChecked: CacheUserCheck;
+}
+
 /** 默认数据 */
 const hostPrefix: string = "https://admonitor.catli.net/api_server";
 const defaultStatistic: Statistics = {
@@ -97,6 +106,10 @@ const defaultStatistic: Statistics = {
   updateAt: ''
 }
 const defaultChannels: ChannelInfo[] = []
+const defaultChannelsAccountsRequest: ChannelsAccountsRequest = {
+  channelStatus: -1,
+  accountStatus: 1,
+}
 const massages: Record<string, string> = {
   noData: 'no analytics data',
   noAccount: 'no account',
@@ -120,7 +133,7 @@ Page({
     isShowDateCheck: false,
     //渠道-账号
     channels: defaultChannels,
-    channel_index: 0,
+    current_channel_index: 0,
     isFirstLoad: true,
     massage: massages.loadingData,
   },
@@ -163,7 +176,7 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-
+    this.onLoad();
   },
 
   /**
@@ -188,14 +201,88 @@ Page({
   },
 
   /**
+   * 语法糖，根据channel_id获取channel_index
+   */
+  getChannelIndex(channelId: number): number | null {
+    const channels = this.data.channels;
+    const n = channels.length;
+    for (let i = 0; i < n; i++) {
+      if (channels[i].id === channelId) {
+        return i
+      }
+    }
+    return null
+  },
+
+  /**
+   * 语法糖，验证cacheAccount_ids是否都存在于指定accounts中
+   */
+  authCacheAccountIds(accounts: Account[], cacheAccount_ids: number[]): boolean {
+    const n = cacheAccount_ids.length;
+    for (let i = 0; i < n; i++) {
+      if (accounts.findIndex(account => account.id === cacheAccount_ids[i]) == -1) return false;
+    }
+    return true
+  },
+  /**
+   * 获取checked_account_ids
+   */
+  getAccountIds(): number[] {
+    const account_ids: number[] = [];
+    const channel_index = this.data.current_channel_index;
+    const channels = this.data.channels;
+    if (channel_index >= channels.length) return account_ids;
+    const channel = channels[channel_index];
+    const accounts = channel.accounts;
+    accounts.forEach(account => {
+      if (account.isChecked) {
+        account_ids.push(account.id);
+      }
+    })
+    return account_ids;
+  },
+  /**
+   * 初始化用户设置
+   */
+  InitUserSet() {
+    const channels = this.data.channels;
+    //主要设置channel_index，与accountIds
+    //默认的channel_index
+    let current_channel_index = this.data.current_channel_index;
+    //默认的accountIds
+    let accountIds = this.getAccountIds();
+    //优先从缓存中获取设置数据
+    const cacheUserCheck = this.getUserChecked();
+    if (cacheUserCheck === null) return
+    const channelIndex = this.getChannelIndex(cacheUserCheck.channelId)
+    if (channelIndex === null) return
+    current_channel_index = channelIndex;
+    const ok = this.authCacheAccountIds(channels[current_channel_index].accounts, cacheUserCheck.accountIds);
+    if (ok) {
+      accountIds = cacheUserCheck.accountIds
+    }
+    const accounts = channels[current_channel_index].accounts;
+    accounts.forEach(account => {
+      account.isChecked = false
+    })
+    accountIds.forEach(account_id => {
+      accounts.forEach(account => {
+        if (account.id === account_id) {
+          account.isChecked = true
+        }
+      })
+    })
+    this.setData({
+      current_channel_index: current_channel_index,
+      channels: channels
+    })
+  },
+  /**
    * 请求所有渠道数据
    */
   requestChannelsAndAccounts() {
     const _this = this;
-    const params: ChannelsAccountsRequest = {
-      channelStatus: -1,
-      accountStatus: 1,
-    } 
+    const params = defaultChannelsAccountsRequest;
     wx.request({
       url: `${hostPrefix}/channelsAccounts`,
       method: 'POST',
@@ -204,7 +291,7 @@ Page({
         'Authorization': wx.getStorageSync('token')
       },
       success: (res: any) => {
-        if (res.statusCode === 401){
+        if (res.statusCode === 401) {
           _this.noPowerHandler();
           return;
         }
@@ -228,6 +315,7 @@ Page({
         })
       },
       complete() {
+        _this.InitUserSet();
         _this.requestStatistics();
       }
     })
@@ -237,9 +325,10 @@ Page({
    * 请求statistics数据
    */
   requestStatistics() {
+    const channels = this.data.channels;
     //判断是否有渠道
-    if (this.data.channels.length === 0) return;
-    const current_channel = this.data.channels[this.data.channel_index]
+    if (channels.length === 0) return;
+    const current_channel = channels[this.data.current_channel_index]
     //判断渠道是否存在
     if (current_channel === undefined) return;
     const accounts = current_channel.accounts;
@@ -290,7 +379,7 @@ Page({
         'Authorization': wx.getStorageSync('token')
       },
       success(res) {
-        if (res.statusCode === 401){
+        if (res.statusCode === 401) {
           _this.noPowerHandler();
           return;
         }
@@ -372,10 +461,12 @@ Page({
 
   onTabsChannelChangeEvent(e: any): void {
     const index = e.detail.currentIndex;
+    // const id = +e.detail.activeKey;
     if (index === undefined) return;
     this.setData({
       channel_index: index
     })
+    this.setUserChecked();
     this.requestStatistics();
   },
 
@@ -388,7 +479,7 @@ Page({
     const checkStatus = e.detail.checked;
     if (checkStatus === undefined) return;
     const channels = this.data.channels;
-    const accounts = channels[this.data.channel_index].accounts;
+    const accounts = channels[this.data.current_channel_index].accounts;
     if (accounts === undefined) return;
     const n = accounts.length;
     for (let i = 0; i < n; i++) {
@@ -400,6 +491,45 @@ Page({
     this.setData({
       channels: channels
     })
+    this.setUserChecked();
     this.requestStatistics();
+  },
+  /**
+   * 存储用户设置
+   */
+  setUserChecked() {
+    const current_channel_index = this.data.current_channel_index;
+    const channels = this.data.channels;
+    const current_channel_id = channels[current_channel_index].id;
+    const accounts = channels[current_channel_index].accounts;
+    const account_ids: number[] = []
+    accounts.forEach(account => {
+      if (account.isChecked) {
+        account_ids.push(account.id);
+      }
+    })
+    const panelSet: PanelSet = {
+      userChecked: {
+        channelId: current_channel_id,
+        accountIds: account_ids,
+      }
+    }
+    wx.setStorageSync("panelSet", panelSet)
+  },
+  /**
+   * 取出用户设置
+   */
+  getUserChecked(): CacheUserCheck | null {
+    let panelSet: PanelSet | null = null
+    try {
+      const value = wx.getStorageSync("panelSet");
+      if (value) {
+        panelSet = value as PanelSet
+      }
+    } catch (error) {
+      return null
+    }
+    if (panelSet) return panelSet.userChecked
+    return null
   }
 })

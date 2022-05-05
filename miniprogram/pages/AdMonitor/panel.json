@@ -1,9 +1,9 @@
 {
   "navigationBarTitleText": "广告投放监测面板",
-  "enablePullDownRefresh": false,
+  "enablePullDownRefresh": true,
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
-  "backgroundTextStyle": "light",
+  "backgroundTextStyle": "dark",
   "usingComponents": {
     "date": "../../components/date",
     "l-tabs": "../../components/lin-ui/tabs",
