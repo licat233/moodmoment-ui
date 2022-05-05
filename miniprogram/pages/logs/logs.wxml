@@ -1,10 +1,17 @@
 <!--logs.wxml-->
 <view class="container log-list">
-  <block wx:for="{{logs}}" wx:key="timeStamp" wx:for-item="log">
+  <l-message show="{{showError}}" duration="{{4000}}" type="error" content="{{errorMsg}}" />
+  <block wx:for="{{logs}}" wx:key="index" wx:for-item="log">
     <view class="log-item">
-      <l-card type="primary" plaintext="{{true}}" title="登录日志">
-        <view class="content">
-          {{log.date}}
+      <l-card type="primary" l-class="log-card" plaintext="{{true}}" title="系统日志">
+        <view class="log-content">
+          <l-icon l-class='log-icon' wx:if="{{log.level===INFO}}" name="success" color="#34BFA3" size="36" />
+          <l-icon l-class='log-icon' wx:if="{{log.level===ERROR}}" name="error" color="#F4516C" size="36" />
+          <l-icon l-class='log-icon' wx:if="{{log.level===WARN}}" name="warning" color="#FFE57F" size="36" />
+          {{log.msg}}
+        </view>
+        <view class="log-time">
+          <view class="number">{{log.ts}}</view>
         </view>
       </l-card>
     </view>

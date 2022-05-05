@@ -1,0 +1,28 @@
+.log-list {
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx 10rpx;
+
+  .log-item {
+    .log-card{
+      text-align: left;
+    }
+    margin: 10rpx;
+    .log-content{
+      .log-icon{
+        display: inline;
+        float: left;
+        padding-right:  8rpx;
+      }
+      color: #333;
+      text-align: left;
+      font-size: 1rem;
+      padding: 20rpx 0;
+    }
+    .log-time{
+      color: #333;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+  }
+}

@@ -5,7 +5,7 @@
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
   "usingComponents": {
-    "l-card":"../../components/lin-ui/card"
-
+    "l-card":"../../components/lin-ui/card",
+    "l-icon":"../../components/lin-ui/icon"
   }
 }

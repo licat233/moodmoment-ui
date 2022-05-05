@@ -16,7 +16,8 @@
   "Subpackages": [],
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "l-transition": "./components/lin-ui/transition"
+    "l-transition": "./components/lin-ui/transition",
+    "l-message": "./components/lin-ui/message"
   },
   "tabBar": {
     "custom": false,

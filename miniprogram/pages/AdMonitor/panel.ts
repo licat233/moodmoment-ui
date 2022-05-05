@@ -1,12 +1,7 @@
 // pages/AdMonitor/panel.ts
+import { Login } from '../../app';
 import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
-
-interface ResponseData {
-  success: boolean;
-  message: string;
-  data: unknown;
-}
-
+const app = getApp<IAppOption>()
 interface Statistics {
   id: number;
   identifier: string;
@@ -84,7 +79,7 @@ interface PanelSet {
 }
 
 /** 默认数据 */
-const hostPrefix: string = "https://admonitor.catli.net/api_server";
+const hostPrefix: string = app.globalData.monitorHostPrefix;
 const defaultStatistic: Statistics = {
   id: 0,
   identifier: "0_0_2022-05-01_logic",
@@ -142,7 +137,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-    this.requestChannelsAndAccounts();
+    this.requestChannelsAndAccounts()
   },
 
   /**
@@ -176,7 +171,9 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-    this.onLoad();
+    this.requestChannelsAndAccounts().finally(() => {
+      wx.stopPullDownRefresh();
+    })
   },
 
   /**
@@ -198,6 +195,7 @@ Page({
     this.setData({
       massage: massages.noPowerView
     })
+    Login()
   },
 
   /**
@@ -283,41 +281,46 @@ Page({
   requestChannelsAndAccounts() {
     const _this = this;
     const params = defaultChannelsAccountsRequest;
-    wx.request({
-      url: `${hostPrefix}/channelsAccounts`,
-      method: 'POST',
-      data: params,
-      header: {
-        'Authorization': wx.getStorageSync('token')
-      },
-      success: (res: any) => {
-        if (res.statusCode === 401) {
-          _this.noPowerHandler();
-          return;
+    return new Promise(function (resolve: (value: unknown) => void, reject: (reason?: any) => void) {
+      wx.request({
+        url: `${hostPrefix}/channelsAccounts`,
+        method: 'POST',
+        data: params,
+        header: {
+          'Authorization': wx.getStorageSync('token')
+        },
+        success: (res: any) => {
+          resolve(res);
+        },
+        fail(err: any) {
+          reject(err)
         }
-        if (res.statusCode === 200) {
-          if (res.data.success) {
-            const result = res.data as ResponseData
-            // console.log(result)
-            if (result.success) {
-              const channels = result.data as ChannelInfo[]
-              _this.setData({
-                channels: channels,
-              });
-            }
+      })
+    }).then((res: any) => {
+      if (res.statusCode === 401) {
+        this.noPowerHandler();
+        return;
+      }
+      if (res.statusCode === 200) {
+        if (res.data.success) {
+          const result = res.data as ResponseData
+          // console.log(result)
+          if (result.success) {
+            const channels = result.data as ChannelInfo[]
+            this.setData({
+              channels: channels,
+            });
           }
         }
-      },
-      fail(err: any) {
-        console.log(err)
-        _this.setData({
-          massage: massages.serverError
-        })
-      },
-      complete() {
-        _this.InitUserSet();
-        _this.requestStatistics();
       }
+    }).catch((err: any) => {
+      console.log(err)
+      _this.setData({
+        massage: massages.serverError
+      })
+    }).finally(() => {
+      _this.InitUserSet();
+      _this.requestStatistics();
     })
   },
 
@@ -370,55 +373,51 @@ Page({
       startDate,
       endDate
     }
-    const _this = this;
-    wx.request({
-      url: hostPrefix + '/statistics',
-      method: 'POST',
-      data: params,
-      header: {
-        'Authorization': wx.getStorageSync('token')
-      },
-      success(res) {
-        if (res.statusCode === 401) {
-          _this.noPowerHandler();
-          return;
-        }
-        if (res.statusCode === 200) {
-          const result = res.data as ResponseData
-          if (result.success) {
-            if (result.data == null) {
-              _this.setData({
-                statistics: defaultStatistic,
-                isEmpty: true,
-                massage: massages.noData
-              })
-              return
-            }
-            const statistics = result.data as Statistics
-            _this.setData({
-              statistics: statistics,
-              isEmpty: false
-            });
+    return new Promise((resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
+      wx.request({
+        url: hostPrefix + '/statistics',
+        method: 'POST',
+        data: params,
+        header: {
+          'Authorization': wx.getStorageSync('token')
+        },
+        success(res: any) {
+          resolve(res)
+        },
+        fail(err: any) {
+          reject(err)
+        },
+      });
+    }).then((res: any) => {
+      if (res.statusCode === 401) {
+        this.noPowerHandler();
+        return;
+      }
+      if (res.statusCode === 200) {
+        const result = res.data as ResponseData
+        if (result.success) {
+          if (result.data == null) {
+            this.setData({
+              statistics: defaultStatistic,
+              isEmpty: true,
+              massage: massages.noData
+            })
+            return
           }
+          const statistics = result.data as Statistics
+          this.setData({
+            statistics: statistics,
+            isEmpty: false
+          });
         }
-      },
-      fail() {
-        _this.setData({
-          isEmpty: true,
-          massage: massages.serverError
-        })
-      },
-    });
-  },
-
-  /**
-   * 第一次加载
-   */
-  firstRequestStatistics() {
-    this.requestStatistics();
-    this.setData({
-      isFirstLoad: false,
-    });
+      }
+    }).catch((err) => {
+      console.log(err)
+      this.setData({
+        isEmpty: true,
+        massage: massages.serverError
+      })
+    })
   },
   /**
    * 打开日期选择器
