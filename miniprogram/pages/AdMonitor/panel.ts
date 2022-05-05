@@ -1,6 +1,6 @@
 // pages/AdMonitor/panel.ts
 import { Login } from '../../app';
-import { formatDate, nowLogicDate, formatDateDetail,formatDate2 } from '../../utils/time';
+import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
 const app = getApp<IAppOption>()
 interface Statistics {
   id: number;
