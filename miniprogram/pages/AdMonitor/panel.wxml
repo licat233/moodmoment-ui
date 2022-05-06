@@ -6,7 +6,10 @@
         <l-button l-class="type-button" l-icon-class="type-button-icon" shape="semicircle" size="mini" plain="{{true}}" bind:lintap="swicthTypeHandler" id="{{current_type.key}}">{{current_type.value}}</l-button>
       </view>
       <view class="panel__total">
-        <view class="panel__show">
+        <view class="panel__show" wx:if="{{showLoading}}">
+          <l-loading show="{{true}}" type="change" color="#fff"></l-loading>
+        </view>
+        <view class="panel__show" wx:else>
           <view class="panel__money">
             <l-price unit="¥" autofix="{{true}}" reserve-digit="2" unit-color="var(--white)" value-color="var(--white)" unit-size="40" value-size="70" value="{{ statistics.costCny }}"></l-price>
           </view>
@@ -18,7 +21,7 @@
       <!-- 日期选择 -->
       <view class="panel_date">
         <!-- 日期选择器 -->
-        <date isShow="{{isShowDateCheck}}" minDate="2022/05/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" currentDate="2022/05/01"/>
+        <date isShow="{{isShowDateCheck}}" minDate="2022/05/01" timeStart="{{start_date}}" timeEnd="{{end_date}}" theme_color="#00c9ec" bind:tapYes="dateSubmit" bind:tapNo="closeDateCheck" id="dateRange" currentDate="2022/05/01" />
         <!-- 日期选择器end -->
         <!-- 日期范围 -->
         <view class="panel_picker_date">
@@ -69,11 +72,11 @@
         <view class="adaccount_box">
           <text class="adaccount">Recent Ad statistics</text>
         </view>
-        <view class="panel_empty" wx:if="{{isEmpty}}">
-          <text class="iconfont icon-statistics"></text>
-          <text class="alert">{{massage}}</text>
+        <view class="panel_empty" wx:if="{{showMessage}}">
+          <l-icon name="{{message.name}}" color="{{message.color}}" />
+          <text class="alert" style="color:{{message.color}}">{{message.content}}</text>
         </view>
-        <view class="statistics" wx:if="{{!isEmpty}}">
+        <view class="statistics" wx:else>
           <view class="statistics_list">
             <view class="statistics_item">
               <view class="name">

@@ -1,6 +1,10 @@
+
+
 @font-face {
-  font-family: "iconfont"; /* Project id  */
-  src: url('https://wx.static.catli.net/static/iconfont/iconfont.ttf?t=1650596814545') format('truetype');
+  font-family: 'iconfont';  /* Project id 3349924 */
+  src: url('//at.alicdn.com/t/font_3349924_sc92qkhu0y.woff2?t=1650618952038') format('woff2'),
+       url('//at.alicdn.com/t/font_3349924_sc92qkhu0y.woff?t=1650618952038') format('woff'),
+       url('//at.alicdn.com/t/font_3349924_sc92qkhu0y.ttf?t=1650618952038') format('truetype');
 }
 
 .iconfont {

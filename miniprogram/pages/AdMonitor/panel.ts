@@ -85,6 +85,11 @@ interface TypeInfo {
   value: string;
 }
 
+interface AlertInfo {
+  name: string;
+  color: string;
+  content: string;
+}
 
 /** 默认数据 */
 const hostPrefix: string = app.globalData.monitorHostPrefix;
@@ -113,13 +118,14 @@ const defaultChannelsAccountsRequest: ChannelsAccountsRequest = {
   channelStatus: -1,
   accountStatus: 1,
 }
-const massages: Record<string, string> = {
-  noData: 'no analytics data',
-  noAccount: 'no account',
-  noChecked: 'no checked account',
-  serverError: 'server error',
-  loadingData: 'Loading data ...',
-  noPowerView: 'not authorized'
+const massages: Record<string, AlertInfo> = {
+  noData: { name: "warning", color: "var(--secondary)", content: 'no analytics data' },
+  noChannel: { name: "warning", color: "var(--secondary)", content: 'no channel' },
+  noAccount: { name: "warning", color: "var(--secondary)", content: 'no account' },
+  noChecked: { name: "warning", color: "var(--primary)", content: 'no checked account' },
+  serverError: { name: "error", color: "#F4516C", content: 'server error' },
+  loadingData: { name: "loading", color: "var(--primary)", content: 'loading...' },
+  unauthorized: { name: "warning", color: "#F4516C", content: 'unauthorized' }
 }
 const statisticsType: { LOGIC: TypeInfo, NEWEST: TypeInfo, DAY: TypeInfo } = {
   LOGIC: {
@@ -148,14 +154,14 @@ Page({
     statistics: defaultStatistic,
     start_date: defaultDate,
     end_date: defaultDate,
-    isEmpty: true,
+    showMessage: true,
+    showLoading: true,
     isShowDateCheck: false,
     //渠道-账号
     channels: defaultChannels,
     current_channel_index: 0,
     current_type: statisticsType.LOGIC,
-    isFirstLoad: true,
-    massage: massages.loadingData,
+    message: massages.loadingData,
   },
 
   /**
@@ -219,9 +225,7 @@ Page({
    * 无权限事件
    */
   noPowerHandler() {
-    this.setData({
-      massage: massages.noPowerView
-    })
+    this.showMessage(massages.unauthorized)
     Login()
   },
 
@@ -317,10 +321,10 @@ Page({
     let current_type = this.data.current_type;
     //缓存的type
     const cacheType = cacheUserCheck.type;
-    if (typeof cacheType.key === "undefined"){
+    if (typeof cacheType.key === "undefined") {
       //如果缓存不存在，那就设置一下缓存
       this.setUserChecked()
-    }else{ //如果存在
+    } else { //如果存在
       //那就使用缓存
       current_type = cacheType;
     }
@@ -334,9 +338,8 @@ Page({
    * 请求所有渠道数据
    */
   requestChannelsAndAccounts() {
-    const _this = this;
     const params = defaultChannelsAccountsRequest;
-    return new Promise(function (resolve: (value: unknown) => void, reject: (reason?: any) => void) {
+    return new Promise((resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
       wx.request({
         url: `${hostPrefix}/channelsAccounts`,
         method: 'POST',
@@ -370,12 +373,10 @@ Page({
       }
     }).catch((err: any) => {
       console.log(err)
-      _this.setData({
-        massage: massages.serverError
-      })
+      this.showMessage(massages.serverError)
     }).finally(() => {
-      _this.InitUserSet();
-      _this.requestStatistics();
+      this.InitUserSet();
+      this.requestStatistics();
     })
   },
 
@@ -385,20 +386,22 @@ Page({
   requestStatistics() {
     const channels = this.data.channels;
     //判断是否有渠道
-    if (channels.length === 0) return;
+    if (channels.length === 0) {
+      this.showMessage(massages.noChannel)
+      return
+    };
     const current_channel = channels[this.data.current_channel_index]
     //判断渠道是否存在
-    if (current_channel === undefined) return;
+    if (typeof current_channel === "undefined") {
+      this.showMessage(massages.noChannel)
+      return
+    };
     const accounts = current_channel.accounts;
+    console.log(accounts)
     //判断渠道内是否有账号
     if (accounts.length === 0) {
-      //如果没有账号
-      this.setData({
-        statistics: defaultStatistic,
-        isEmpty: true,
-        massage: massages.noAccount
-      })
-      return;
+      this.showMessage(massages.noAccount);
+      return
     };
     const check_accounts: number[] = [];
     accounts.forEach((account) => {
@@ -408,22 +411,17 @@ Page({
     });
     //如果没有选中账号，则empty
     if (check_accounts.length === 0) {
-      this.setData({
-        statistics: defaultStatistic,
-        isEmpty: true,
-        massage: massages.noChecked
-      })
-      return;
+      return this.showMessage(massages.noChecked);
     };
 
     const startDate = this.data.start_date;
     const endDate = this.data.end_date;
     this.setData({ isLoading: true });
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
-      return;
+      return this.showMessage(massages.noData);
     }
     let typeKey = this.data.current_type.key;
-    if (typeof typeKey === undefined){
+    if (typeof typeKey === "undefined") {
       typeKey = statisticsType.LOGIC.key
     }
     const params: RequestStatisticsParams = {
@@ -434,6 +432,8 @@ Page({
       type: typeKey
     }
     return new Promise((resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
+      this.showMessage(massages.loadingData);
+      this.showLoading();
       wx.request({
         url: hostPrefix + '/statistics',
         method: 'POST',
@@ -457,26 +457,17 @@ Page({
         const result = res.data as ResponseData
         if (result.success) {
           if (result.data == null) {
-            this.setData({
-              statistics: defaultStatistic,
-              isEmpty: true,
-              massage: massages.noData
-            })
-            return
+            return this.showMessage(massages.noData);
           }
           const statistics = result.data as Statistics
-          this.setData({
-            statistics: statistics,
-            isEmpty: false
-          });
+          this.showStatistics(statistics);
         }
       }
     }).catch((err) => {
       console.log(err)
-      this.setData({
-        isEmpty: true,
-        massage: massages.serverError
-      })
+      return this.showMessage(massages.serverError);
+    }).finally(() => {
+      this.hideLoading();
     })
   },
   /**
@@ -510,10 +501,9 @@ Page({
 
   onTabsChannelChangeEvent(e: any): void {
     const index = e.detail.currentIndex;
-    // const id = +e.detail.activeKey;
     if (index === undefined) return;
     this.setData({
-      channel_index: index
+      current_channel_index: index as number
     })
     this.setUserChecked();
     this.requestStatistics();
@@ -607,5 +597,57 @@ Page({
     }
     this.setUserChecked();
     this.requestStatistics();
+  },
+  /**
+   * 显示加载动画
+   */
+  showLoading() {
+    this.setData({
+      showLoading: true
+    })
+  },
+  hideLoading() {
+    this.setData({
+      showLoading: false
+    })
+  },
+  /**
+   * 设置提示消息
+   */
+  showMessage(msg: AlertInfo) {
+    if(msg.name !== "loading"){
+      this.setData({
+        showLoading: false
+      })
+    }
+    this.setData({
+      showMessage: true,
+      message: msg,
+      statistics: defaultStatistic,
+    })
+  },
+  /**
+   * 隐藏提示消息
+   */
+  hideMessage() {
+    this.setData({
+      showLoading: false,
+      showMessage: false
+    })
+  },
+  /**
+   * 展现数据
+   */
+  showStatistics(data:Statistics){
+    this.hideLoading();
+    const current_channel_index = this.data.current_channel_index;
+    const dataChannelIndex = this.getChannelIndex(data.channelId);
+    if(current_channel_index !== dataChannelIndex){
+      return;
+    }
+    this.hideMessage();
+    this.setData({
+      statistics: data,
+    });
   }
 })
