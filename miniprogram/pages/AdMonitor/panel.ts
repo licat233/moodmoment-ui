@@ -168,6 +168,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
+    this.InitCheckDate();
+    this.InitUserSetByCache();
     this.requestChannelsAndAccounts()
   },
 
@@ -203,7 +205,7 @@ Page({
    */
   onPullDownRefresh() {
     this.InitCheckDate();
-    this.InitUserSet();
+    this.InitUserSetByCache();
     this.requestChannelsAndAccounts().finally(() => {
       wx.stopPullDownRefresh();
     })
@@ -287,52 +289,66 @@ Page({
     }
   },
   /**
-   * 初始化用户设置
+   * 通过缓存初始化用户设置
    */
-  InitUserSet() {
-    const channels = this.data.channels;
-    //主要设置channel_index，与accountIds
-    //默认的channel_index
-    let current_channel_index = this.data.current_channel_index;
-    //默认的accountIds
-    let accountIds = this.getAccountIds();
-    //优先从缓存中获取设置数据
-    const cacheUserCheck = this.getUserChecked();
-    if (cacheUserCheck === null) return
-    const channelIndex = this.getChannelIndex(cacheUserCheck.channelId)
-    if (channelIndex === null) return
-    current_channel_index = channelIndex;
-    const ok = this.authCacheAccountIds(channels[current_channel_index].accounts, cacheUserCheck.accountIds);
-    if (ok) {
-      accountIds = cacheUserCheck.accountIds
-    }
-    const accounts = channels[current_channel_index].accounts;
-    accounts.forEach(account => {
-      account.isChecked = false
-    })
-    accountIds.forEach(account_id => {
+  InitUserSetByCache() {
+    try {
+      const channels = this.data.channels;
+      //主要设置channel_index，与accountIds
+      //默认的channel_index
+      let current_channel_index = this.data.current_channel_index;
+      //默认的accountIds
+      let accountIds = this.getAccountIds();
+      //优先从缓存中获取设置数据
+      const cacheUserCheck = this.getUserChecked();
+      if (cacheUserCheck === null) return
+      const channelIndex = this.getChannelIndex(cacheUserCheck.channelId)
+      if (channelIndex === null) return
+      current_channel_index = channelIndex;
+      const ok = this.authCacheAccountIds(channels[current_channel_index].accounts, cacheUserCheck.accountIds);
+      if (ok) {
+        accountIds = cacheUserCheck.accountIds
+      }
+      if (channels.length <= current_channel_index) return;
+      const accounts = channels[current_channel_index].accounts;
       accounts.forEach(account => {
-        if (account.id === account_id) {
-          account.isChecked = true
-        }
+        account.isChecked = false
       })
-    })
-    //默认的type_key
-    let current_type = this.data.current_type;
-    //缓存的type
-    const cacheType = cacheUserCheck.type;
-    if (typeof cacheType.key === "undefined") {
-      //如果缓存不存在，那就设置一下缓存
-      this.setUserChecked()
-    } else { //如果存在
-      //那就使用缓存
-      current_type = cacheType;
+      accountIds.forEach(account_id => {
+        accounts.forEach(account => {
+          if (account.id === account_id) {
+            account.isChecked = true
+          }
+        })
+      })
+      //默认的type_key
+      let current_type = this.data.current_type;
+      //缓存的type
+      const cacheType = cacheUserCheck.type;
+      if (cacheType === undefined) {
+        //如果缓存不存在，那就设置一下缓存
+        this.setUserChecked()
+      } else { //如果存在
+        //那就使用缓存
+        current_type = cacheType;
+      }
+      this.setData({
+        current_channel_index: current_channel_index,
+        channels: channels,
+        current_type: current_type
+      })
+    } catch (error) {
+      console.log(error)
+      //出错说明缓存有问题
+      wx.clearStorage().then(() => {
+        //重新加载
+        this.onLoad();
+      }).catch((err) => {
+        console.log(err)
+        //既然没法清除缓存，那就重设缓存
+        this.setUserChecked();
+      })
     }
-    this.setData({
-      current_channel_index: current_channel_index,
-      channels: channels,
-      current_type: current_type
-    })
   },
   /**
    * 请求所有渠道数据
@@ -375,7 +391,6 @@ Page({
       console.log(err)
       this.showMessage(massages.serverError)
     }).finally(() => {
-      this.InitUserSet();
       this.requestStatistics();
     })
   },
@@ -397,7 +412,6 @@ Page({
       return
     };
     const accounts = current_channel.accounts;
-    console.log(accounts)
     //判断渠道内是否有账号
     if (accounts.length === 0) {
       this.showMessage(massages.noAccount);
@@ -615,7 +629,7 @@ Page({
    * 设置提示消息
    */
   showMessage(msg: AlertInfo) {
-    if(msg.name !== "loading"){
+    if (msg.name !== "loading") {
       this.setData({
         showLoading: false
       })
@@ -638,11 +652,11 @@ Page({
   /**
    * 展现数据
    */
-  showStatistics(data:Statistics){
+  showStatistics(data: Statistics) {
     this.hideLoading();
     const current_channel_index = this.data.current_channel_index;
     const dataChannelIndex = this.getChannelIndex(data.channelId);
-    if(current_channel_index !== dataChannelIndex){
+    if (current_channel_index !== dataChannelIndex) {
       return;
     }
     this.hideMessage();
