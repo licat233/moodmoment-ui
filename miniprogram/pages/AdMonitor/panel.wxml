@@ -1,10 +1,10 @@
 <!-- pages/AdMonitor/panel.wxml -->
-<template name="accountItem">
-  <view class="account_picker_item">{{accounts[account_index]}}</view>
-</template>
 <view class="container">
   <l-transition show="{{ true }}" name="fade-down">
     <view class="panel">
+      <view class="type-switch">
+        <l-button l-class="type-button" l-icon-class="type-button-icon" shape="semicircle" size="mini" plain="{{true}}" bind:lintap="swicthTypeHandler" id="{{current_type.key}}">{{current_type.value}}</l-button>
+      </view>
       <view class="panel__total">
         <view class="panel__show">
           <view class="panel__money">

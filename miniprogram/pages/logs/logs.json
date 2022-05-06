@@ -1,9 +1,9 @@
 {
   "navigationBarTitleText": "日志",
-  "enablePullDownRefresh": false,
+  "enablePullDownRefresh": true,
   "navigationBarBackgroundColor": "#7b56ff",
   "navigationBarTextStyle": "white",
-  "backgroundTextStyle": "light",
+  "backgroundTextStyle": "dark",
   "usingComponents": {
     "l-card":"../../components/lin-ui/card",
     "l-icon":"../../components/lin-ui/icon"

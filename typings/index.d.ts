@@ -11,3 +11,13 @@ interface IAppOption {
   }
   userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }
+interface RequestOption {
+  url: string,
+  method: "POST" | "OPTIONS" | "GET" | "HEAD" | "PUT" | "DELETE" | "TRACE" | "CONNECT" | undefined,
+  data: string | Record<string, any> | ArrayBuffer | undefined,
+}
+
+interface BaseRequstOption {
+  url: string,
+  data: string | Record<string, any> | ArrayBuffer | undefined,
+}

@@ -24,13 +24,10 @@ Page({
   },
   onLoad() {
     this.requestSysLogs();
-    this.setData({
-      logs: (wx.getStorageSync('logs') || []).map((log: string) => {
-        return {
-          date: formatTime(new Date(log)),
-          timeStamp: log
-        }
-      }),
+  },
+  onPullDownRefresh(){
+    this.requestSysLogs().finally(()=>{
+      wx.stopPullDownRefresh();
     })
   },
   /**
@@ -60,8 +57,9 @@ Page({
         const resp = (res as any).data as ResponseData
         if (resp.success) {
           try {
-            const logs: LogInfo[] = JSON.parse(resp.data as string).logs
-            if (!logs) {
+            // console.log(resp.data)
+            const logs: LogInfo[] = resp.data as LogInfo[]
+            if (!Array.isArray(logs)) {
               throw "日志数据异常"
             }
             const n = logs.length

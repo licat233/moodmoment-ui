@@ -28,6 +28,7 @@ interface RequestStatisticsParams {
   accountIds: number[];
   startDate: string;
   endDate: string;
+  type: "logic" | "newest" | "day";
 }
 
 interface ChannelDetail {
@@ -72,11 +73,18 @@ interface ChannelsAccountsRequest {
 interface CacheUserCheck {
   channelId: number;
   accountIds: number[];
+  type: TypeInfo;
 }
 
 interface PanelSet {
   userChecked: CacheUserCheck;
 }
+
+interface TypeInfo {
+  key: "logic" | "newest" | "day";
+  value: string;
+}
+
 
 /** 默认数据 */
 const hostPrefix: string = app.globalData.monitorHostPrefix;
@@ -113,8 +121,23 @@ const massages: Record<string, string> = {
   loadingData: 'Loading data ...',
   noPowerView: 'not authorized'
 }
+const statisticsType: { LOGIC: TypeInfo, NEWEST: TypeInfo, DAY: TypeInfo } = {
+  LOGIC: {
+    key: "logic",
+    value: "LOGIC"
+  },
+  NEWEST: {
+    key: "newest",
+    value: "NEWEST"
+  },
+  DAY: {
+    key: "day",
+    value: "DAY"
+  }
+}
 
 const defaultDate: string = formatDate(nowLogicDate())
+
 
 /** 默认数据end */
 Page({
@@ -130,6 +153,7 @@ Page({
     //渠道-账号
     channels: defaultChannels,
     current_channel_index: 0,
+    current_type: statisticsType.LOGIC,
     isFirstLoad: true,
     massage: massages.loadingData,
   },
@@ -172,6 +196,8 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
+    this.InitCheckDate();
+    this.InitUserSet();
     this.requestChannelsAndAccounts().finally(() => {
       wx.stopPullDownRefresh();
     })
@@ -241,6 +267,22 @@ Page({
     return account_ids;
   },
   /**
+   * 初始化日期
+   */
+  InitCheckDate() {
+    const start_date = this.data.start_date;
+    const end_date = this.data.end_date;
+    if (start_date !== end_date) return;
+    const logic_date = formatDate(nowLogicDate());
+    if (start_date === logic_date) return;
+    if (logic_date !== start_date || logic_date !== end_date) {
+      this.setData({
+        start_date: logic_date,
+        end_date: logic_date,
+      })
+    }
+  },
+  /**
    * 初始化用户设置
    */
   InitUserSet() {
@@ -271,9 +313,21 @@ Page({
         }
       })
     })
+    //默认的type_key
+    let current_type = this.data.current_type;
+    //缓存的type
+    const cacheType = cacheUserCheck.type;
+    if (typeof cacheType.key === "undefined"){
+      //如果缓存不存在，那就设置一下缓存
+      this.setUserChecked()
+    }else{ //如果存在
+      //那就使用缓存
+      current_type = cacheType;
+    }
     this.setData({
       current_channel_index: current_channel_index,
-      channels: channels
+      channels: channels,
+      current_type: current_type
     })
   },
   /**
@@ -368,11 +422,16 @@ Page({
     if (new Date(startDate) > new Date(endDate) || new Date(startDate) > new Date()) {
       return;
     }
+    let typeKey = this.data.current_type.key;
+    if (typeof typeKey === undefined){
+      typeKey = statisticsType.LOGIC.key
+    }
     const params: RequestStatisticsParams = {
       channelId: current_channel.id,
       accountIds: check_accounts,
       startDate,
-      endDate
+      endDate,
+      type: typeKey
     }
     return new Promise((resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
       wx.request({
@@ -436,24 +495,12 @@ Page({
   },
 
   /**
- * 日期改变事件
- */
+  * 日期改变事件
+  */
   dateSubmit(e: any) {
-    // console.log(e);
-    // if (e.currentTarget.id !== "dateRange") return;
     const startDate = formatDateDetail(e.detail.start.year, e.detail.start.month, e.detail.start.date)
     const endDate = formatDateDetail(e.detail.end.year, e.detail.end.month, e.detail.end.date)
     this.setData({ start_date: startDate, end_date: endDate });
-    // console.log(startDate,"-",endDate)
-    // const startEqual = startDate === this.data.start_date
-    // const endEqual = endDate === this.data.end_date
-    // if (startEqual && endEqual) return;
-    // if (!startEqual) {
-    //   this.setData({ start_date: startDate });
-    // }
-    // if (!endEqual) {
-    //   this.setData({ end_date: endDate });
-    // }
     this.requestStatistics();
   },
 
@@ -514,6 +561,7 @@ Page({
       userChecked: {
         channelId: current_channel_id,
         accountIds: account_ids,
+        type: this.data.current_type,
       }
     }
     wx.setStorageSync("panelSet", panelSet)
@@ -533,5 +581,31 @@ Page({
     }
     if (panelSet) return panelSet.userChecked
     return null
+  },
+  /**
+   * 类型切换事件
+   */
+  swicthTypeHandler(e: any) {
+    switch (e.currentTarget.id) {
+      case statisticsType.LOGIC.key:
+        this.setData({
+          current_type: statisticsType.NEWEST
+        });
+        break;
+      case statisticsType.NEWEST.key:
+        this.setData({
+          current_type: statisticsType.DAY
+        });
+        break;
+      case statisticsType.DAY.key:
+        this.setData({
+          current_type: statisticsType.LOGIC
+        });
+        break;
+      default:
+        break;
+    }
+    this.setUserChecked();
+    this.requestStatistics();
   }
 })

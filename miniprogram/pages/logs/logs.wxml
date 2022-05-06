@@ -1,6 +1,6 @@
 <!--logs.wxml-->
 <view class="container log-list">
-  <l-message show="{{showError}}" duration="{{4000}}" type="error" content="{{errorMsg}}" />
+  <l-message show="{{showError}}" duration="{{60000}}" type="error" content="{{errorMsg}}" />
   <block wx:for="{{logs}}" wx:key="index" wx:for-item="log">
     <view class="log-item">
       <l-card type="primary" l-class="log-card" plaintext="{{true}}" title="系统日志">
