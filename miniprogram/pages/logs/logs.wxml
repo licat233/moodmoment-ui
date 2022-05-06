@@ -1,19 +1,23 @@
 <!--logs.wxml-->
 <view class="container log-list">
-  <l-message show="{{showError}}" duration="{{60000}}" type="error" content="{{errorMsg}}" />
-  <block wx:for="{{logs}}" wx:key="index" wx:for-item="log">
-    <view class="log-item">
-      <l-card type="primary" l-class="log-card" plaintext="{{true}}" title="系统日志">
-        <view class="log-content">
-          <l-icon l-class='log-icon' wx:if="{{log.level===INFO}}" name="success" color="#34BFA3" size="36" />
-          <l-icon l-class='log-icon' wx:if="{{log.level===ERROR}}" name="error" color="#F4516C" size="36" />
-          <l-icon l-class='log-icon' wx:if="{{log.level===WARN}}" name="warning" color="#FFE57F" size="36" />
-          {{log.msg}}
-        </view>
-        <view class="log-time">
-          <view class="number">{{log.ts}}</view>
-        </view>
-      </l-card>
-    </view>
-  </block>
+  <view wx:if="{{showError}}">
+    {{errorMsg}}
+  </view>
+  <view wx:else>
+    <block wx:for="{{logs}}" wx:key="index" wx:for-item="log">
+      <view class="log-item">
+        <l-card type="primary" l-class="log-card" plaintext="{{true}}" title="系统日志">
+          <view class="log-content">
+            <l-icon l-class='log-icon' wx:if="{{log.level===INFO}}" name="success" color="#34BFA3" size="36" />
+            <l-icon l-class='log-icon' wx:if="{{log.level===ERROR}}" name="error" color="#F4516C" size="36" />
+            <l-icon l-class='log-icon' wx:if="{{log.level===WARN}}" name="warning" color="#FFE57F" size="36" />
+            {{log.msg}}
+          </view>
+          <view class="log-time">
+            <view class="number">{{log.ts}}</view>
+          </view>
+        </l-card>
+      </view>
+    </block>
+  </view>
 </view>

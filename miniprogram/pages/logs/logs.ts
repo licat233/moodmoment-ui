@@ -5,8 +5,8 @@ import { formatTime } from '../../utils/time'
 const app = getApp<IAppOption>()
 
 interface LogInfo {
-  level: string;
   ts: string;
+  level: string;
   caller: string;
   msg: string;
 }
@@ -25,8 +25,8 @@ Page({
   onLoad() {
     this.requestSysLogs();
   },
-  onPullDownRefresh(){
-    this.requestSysLogs().finally(()=>{
+  onPullDownRefresh() {
+    this.requestSysLogs().finally(() => {
       wx.stopPullDownRefresh();
     })
   },
@@ -58,12 +58,9 @@ Page({
         if (resp.success) {
           try {
             // console.log(resp.data)
-            const logs: LogInfo[] = resp.data as LogInfo[]
-            if (!Array.isArray(logs)) {
-              throw "日志数据异常"
-            }
+            const data = resp.data as string[]
+            const logs: LogInfo[] = this.dataHandler(data)
             const n = logs.length
-            if (n === 0) return;
             for (let i = 0; i < n; i++) {
               logs[i].ts = formatTime(new Date(logs[i].ts))
             }
@@ -88,6 +85,32 @@ Page({
       showError: true,
       errorMsg: msg
     })
-
+  },
+  dataHandler(data: string[]): LogInfo[] {
+    const logs: LogInfo[] = [];
+    // const timePatt = /^.*0800/
+    // const levelPatt = /[A-Z]{4,6}/
+    // const callerPatt = /[A-Z]{4,6}/
+    data.forEach((str: string) => {
+      const info = str.split("	");
+      let log: LogInfo;
+      if (info.length === 4) {
+        log = {
+          ts: info[0],
+          level: info[1],
+          caller: info[2],
+          msg: info[3]
+        }
+      } else {
+        log = {
+          ts: "",
+          level: "ERROR",
+          caller: "",
+          msg: str
+        }
+      }
+      logs.push(log)
+    })
+    return logs;
   }
 })

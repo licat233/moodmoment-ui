@@ -17,7 +17,6 @@
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
     "l-transition": "./components/lin-ui/transition",
-    "l-message": "./components/lin-ui/message",
     "l-loading":"./components/lin-ui/loading",
     "l-icon":"./components/lin-ui/icon"
   },
