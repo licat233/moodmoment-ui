@@ -1,6 +1,8 @@
 // pages/AdMonitor/panel.ts
 import { Login } from '../../app';
 import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
+import { POST } from '../../utils/network';
+
 const app = getApp<IAppOption>()
 interface Statistics {
   id: number;
@@ -42,6 +44,11 @@ interface ChannelDetail {
   updateAt: string;
 }
 
+interface Channel {
+  id: number;
+  channelDetail: ChannelDetail;
+}
+
 interface AccountDetail {
   aid: string;
   name: string;
@@ -55,6 +62,11 @@ interface AccountDetail {
 interface Account {
   id: number;
   accountDetail: AccountDetail;
+}
+
+interface AccountInfo {
+  id: number;
+  accountDetail: AccountDetail;
   isChecked: boolean;
   disabled: boolean;
 }
@@ -62,7 +74,7 @@ interface Account {
 interface ChannelInfo {
   id: number;
   channelDetail: ChannelDetail;
-  accounts: Account[];
+  accounts: AccountInfo[];
 }
 
 interface ChannelsAccountsRequest {
@@ -91,6 +103,11 @@ interface AlertInfo {
   content: string;
 }
 
+interface PutStatusData {
+  ids: number[];
+  status: boolean;
+}
+
 /** 默认数据 */
 const hostPrefix: string = app.globalData.monitorHostPrefix;
 const defaultStatistic: Statistics = {
@@ -116,7 +133,7 @@ const defaultStatistic: Statistics = {
 const defaultChannels: ChannelInfo[] = []
 const defaultChannelsAccountsRequest: ChannelsAccountsRequest = {
   channelStatus: -1,
-  accountStatus: 1,
+  accountStatus: -1,
 }
 const massages: Record<string, AlertInfo> = {
   noData: { name: "warning", color: "var(--secondary)", content: 'no analytics data' },
@@ -143,8 +160,8 @@ const statisticsType: { LOGIC: TypeInfo, NEWEST: TypeInfo, DAY: TypeInfo } = {
 }
 
 const defaultDate: string = formatDate(nowLogicDate())
-
-
+const defaultChannelList: Channel[] = [];
+const defaultAccountList: Account[] = [];
 /** 默认数据end */
 Page({
   /**
@@ -157,17 +174,22 @@ Page({
     showMessage: true,
     showLoading: true,
     isShowDateCheck: false,
+    showSetting: false,
     //渠道-账号
     channels: defaultChannels,
     current_channel_index: 0,
     current_type: statisticsType.LOGIC,
     message: massages.loadingData,
+    channel_list: defaultChannelList,
+    account_list: defaultAccountList
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad() {
+    this.requestChannelList();
+    this.requestAccountList();
     this.InitCheckDate();
     this.InitUserSetByCache();
     this.requestChannelsAndAccounts()
@@ -248,7 +270,7 @@ Page({
   /**
    * 语法糖，验证cacheAccount_ids是否都存在于指定accounts中
    */
-  authCacheAccountIds(accounts: Account[], cacheAccount_ids: number[]): boolean {
+  authCacheAccountIds(accounts: AccountInfo[], cacheAccount_ids: number[]): boolean {
     const n = cacheAccount_ids.length;
     for (let i = 0; i < n; i++) {
       if (accounts.findIndex(account => account.id === cacheAccount_ids[i]) == -1) return false;
@@ -378,7 +400,6 @@ Page({
       if (res.statusCode === 200) {
         if (res.data.success) {
           const result = res.data as ResponseData
-          // console.log(result)
           if (result.success) {
             const channels = result.data as ChannelInfo[]
             this.setData({
@@ -663,5 +684,168 @@ Page({
     this.setData({
       statistics: data,
     });
+  },
+  /**
+   * 显示设置
+   */
+  showSettingPanel() {
+    this.setData({
+      showSetting: true
+    })
+  },
+  /**
+   * 隐藏设置
+   */
+  hideSettingPanel(){
+    this.setData({
+      showSetting: false
+    })
+  },
+  /**
+   * 请求渠道列表
+   */
+  requestChannelList() {
+    return POST({
+      url: `${hostPrefix}/channellist`,
+      data: { status: -1 }
+    }).then((resp: any) => {
+      if (resp.statusCode === 200) {
+        const res: ResponseData = resp.data as ResponseData
+        if (res.success && res.data !== null) {
+          const channels = res.data as Channel[];
+          this.setData({
+            channel_list: channels
+          })
+        }
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  /**
+   * 请求账号列表
+   */
+  requestAccountList() {
+    return POST({
+      url: `${hostPrefix}/accountlist`,
+      data: { status: -1 }
+    }).then((resp: any) => {
+      if (resp.statusCode === 200) {
+        const res: ResponseData = resp.data as ResponseData
+        if (res.success && res.data !== null) {
+          const accounts = res.data as Account[];
+          this.setData({
+            account_list: accounts
+          })
+        }
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  /**
+  * 请求修改渠道状态
+  */
+  requestPutChannelStatus(params: PutStatusData) {
+    return POST({
+      url: `${hostPrefix}/channel/status`,
+      data: params
+    }).then((resp: any) => {
+      if (resp.statusCode === 200) {
+        const res: ResponseData = resp.data as ResponseData
+        if (res.success) {
+          this.updateChannelStatus(params.ids, params.status)
+        }
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  /**
+ * 请求修改账号状态
+ */
+  requestPutAccountStatus(params: PutStatusData) {
+    return POST({
+      url: `${hostPrefix}/account/status`,
+      data: params
+    }).then((resp: any) => {
+      if (resp.statusCode === 200) {
+        const res: ResponseData = resp.data as ResponseData
+        if (res.success) {
+          this.updateAccountStatus(params.ids, params.status)
+        }
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  /**
+   * 过滤账号
+   */
+  filterAccounts(channel_id: number): Account[] {
+    const accounts = this.data.account_list;
+    return accounts.filter(account => {
+      return account.accountDetail.channelId === channel_id
+    })
+  },
+  /**
+   * 渠道状态改变事件
+   */
+  channelStatusSwitch(e: any) {
+    // console.log(e)
+    const status = !!e.detail.checked;
+    const channel_id = +e.currentTarget.id;
+    this.requestPutChannelStatus({ ids: [channel_id], status });
+    // this.updateChannelStatus(channel_id, status)
+  },
+  /**
+   * 账号状态改变事件
+   */
+  accountStatusSwitch(e: any) {
+    // console.log(e)
+    const status = !!e.detail.checked;
+    const account_id = +e.currentTarget.id;
+    this.requestPutAccountStatus({ ids: [account_id], status });
+    // this.updateAccountStatus(account_id, status)
+  },
+  /**
+   * 语法糖，修改account_list里面的账号状态
+   */
+  updateAccountStatus(account_ids: number[], status: boolean) {
+    if (!Array.isArray(account_ids)) return;
+    const account_list = this.data.account_list;
+    const n = account_list.length;
+    const m = account_ids.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < m; j++) {
+        if (account_list[i].id === account_ids[i]) {
+          account_list[i].accountDetail.status = status;
+          break
+        }
+      }
+    }
+    this.setData({
+      account_list: account_list
+    })
+  },
+  /**
+   * 语法糖，修改account_list单个账号状态
+   */
+  updateChannelStatus(channel_ids: number[], status: boolean) {
+    if (!Array.isArray(channel_ids)) return;
+    const channel_list = this.data.channel_list;
+    const n = channel_list.length;
+    const m = channel_ids.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < m; j++) {
+        if (channel_list[i].id === channel_ids[j]) {
+          channel_list[i].channelDetail.status = status;
+          break
+        }
+      }
+    }
+    this.setData({
+      channel_list: channel_list
+    })
   }
 })

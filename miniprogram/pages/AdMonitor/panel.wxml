@@ -2,8 +2,11 @@
 <view class="container">
   <l-transition show="{{ true }}" name="fade-down">
     <view class="panel">
-      <view class="type-switch">
-        <l-button l-class="type-button" l-icon-class="type-button-icon" shape="semicircle" size="mini" plain="{{true}}" bind:lintap="swicthTypeHandler" id="{{current_type.key}}">{{current_type.value}}</l-button>
+      <view class="tools-btn">
+        <l-button l-class="tool-button" l-icon-class="tool-button-icon" shape="semicircle" size="mini" plain="{{true}}" bind:lintap="swicthTypeHandler" id="{{current_type.key}}">{{current_type.value}}</l-button>
+        <l-button l-class="tool-button setting-btn" l-icon-class="tool-button-icon" icon="setting" icon-color="aqua" icon-size="18rpx" special="{{true}}" size="mini" shape="semicircle" plain="{{true}}" bind:lintap="showSettingPanel">
+          <l-icon name="setting" color="aqua" l-class="tool-button-icon" />
+        </l-button>
       </view>
       <view class="panel__total">
         <view class="panel__show" wx:if="{{showLoading}}">
@@ -153,4 +156,41 @@
       </view>
     </view>
   </l-transition>
+  <l-arc-popup l-panel-class="arc-popup-panel" l-bg-class="arc-popup-bg" l-header-class="arc-popup-head" show="{{showSetting}}" direction="bottom" min-height="{{600}}" opacity="0.3" header-fixed="{{true}}" >
+    <view class="setting-panel">
+      <view slot="header" class="header-content">
+        <text>监控状态管理</text>
+        <l-icon name="down" size="36" color="#ccc" bindtap="hideSettingPanel"></l-icon>
+      </view>
+      <!-- 内容区 -->
+        <!-- 折叠组 -->
+        <l-collapse type='accordion'>
+          <view class="setting-item-list" wx:for="{{channel_list}}" wx:for-index="cidx" wx:for-item="channel" wx:key="id">
+            <view class="setting-item">
+              <!-- 渠道 -->
+              <view class="setting-item-title">
+                <view style="color: var(--primary);">{{channel.channelDetail.name}}渠道</view>
+                <l-switch checked="{{channel.channelDetail.status}}" color="#e0e0e0" id="{{channel.id}}" select-color="var(--primary)" bind:linchange="channelStatusSwitch" />
+              </view>
+              <!-- 渠道end -->
+              <!-- 折叠 -->
+              <l-collapse-item title="" l-class="collstyle">
+                <view style="height: 20rpx;"></view>
+                <!-- 子账户 -->
+                <view class="setting-item-content" wx:for="{{account_list}}" wx:for-index="aidx" wx:for-item="account" wx:key="id">
+                  <view wx:if="{{account.accountDetail.channelId === channel.id}}" class="setting-account">
+                    <view class="account-name">{{account.accountDetail.name}}</view>
+                    <l-switch checked="{{account.accountDetail.status}}" color="#e0e0e0" select-color="var(--tertiary)" bind:linchange="accountStatusSwitch" id="{{account.id}}" />
+                  </view>
+                </view>
+                <!-- 子账户end -->
+              </l-collapse-item>
+              <!-- 折叠end -->
+            </view>
+          </view>
+        </l-collapse>
+        <!-- 折叠组end -->
+      <!-- 内容区end -->
+    </view>
+  </l-arc-popup>
 </view>

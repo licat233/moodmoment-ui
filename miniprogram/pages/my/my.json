@@ -5,6 +5,7 @@
   "navigationBarTextStyle": "white",
   "backgroundTextStyle": "light",
   "usingComponents": {
-    "l-avatar": "../../components/lin-ui/avatar"
+    "l-avatar": "../../components/lin-ui/avatar",
+    "l-arc-popup": "../../components/lin-ui/arc-popup"
   }
 }
