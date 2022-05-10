@@ -385,12 +385,18 @@
         justify-content: space-between;
         border-bottom: 1rpx solid var(--greyLight-3);
       }
+      .space-item{
+        height: 20rpx;
+        width: 100%;
+        border-top: 1rpx dashed greenyellow;
+      }
 
       .setting-item-content {
         .setting-account {
           display: grid;
           grid-template-columns: auto auto;
-          justify-content: space-between;
+          grid-column-gap: 20rpx;
+          justify-content: flex-start;
           margin-bottom: 12rpx;
           border-bottom: 1rpx dotted #e2e2e2;
 

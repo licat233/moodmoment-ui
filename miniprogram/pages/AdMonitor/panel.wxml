@@ -175,12 +175,12 @@
               <!-- 渠道end -->
               <!-- 折叠 -->
               <l-collapse-item title="" l-class="collstyle">
-                <view style="height: 20rpx;"></view>
+                <view class="space-item"></view>
                 <!-- 子账户 -->
                 <view class="setting-item-content" wx:for="{{account_list}}" wx:for-index="aidx" wx:for-item="account" wx:key="id">
                   <view wx:if="{{account.accountDetail.channelId === channel.id}}" class="setting-account">
-                    <view class="account-name">{{account.accountDetail.name}}</view>
                     <l-switch checked="{{account.accountDetail.status}}" color="#e0e0e0" select-color="var(--tertiary)" bind:linchange="accountStatusSwitch" id="{{account.id}}" />
+                    <view class="account-name">{{account.accountDetail.name}}</view>
                   </view>
                 </view>
                 <!-- 子账户end -->
