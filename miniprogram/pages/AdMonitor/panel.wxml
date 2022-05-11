@@ -193,4 +193,9 @@
       <!-- 内容区end -->
     </view>
   </l-arc-popup>
+  <l-toast
+  show="{{tips.status}}"
+  icon="{{tips.icon}}"
+  title="{{tips.msg}}"
+/>
 </view>

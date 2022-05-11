@@ -108,6 +108,12 @@ interface PutStatusData {
   status: boolean;
 }
 
+interface Tips {
+  status: boolean;
+  icon: "success" | "loading" | "error";
+  msg: string;
+}
+
 /** 默认数据 */
 const hostPrefix: string = app.globalData.monitorHostPrefix;
 const defaultStatistic: Statistics = {
@@ -162,6 +168,11 @@ const statisticsType: { LOGIC: TypeInfo, NEWEST: TypeInfo, DAY: TypeInfo } = {
 const defaultDate: string = formatDate(nowLogicDate())
 const defaultChannelList: Channel[] = [];
 const defaultAccountList: Account[] = [];
+const defaultTips: Tips = {
+  status: false,
+  icon: "error",
+  msg: "操作失败"
+}
 /** 默认数据end */
 Page({
   /**
@@ -181,7 +192,9 @@ Page({
     current_type: statisticsType.LOGIC,
     message: massages.loadingData,
     channel_list: defaultChannelList,
-    account_list: defaultAccountList
+    account_list: defaultAccountList,
+    //消息提示
+    tips: defaultTips
   },
 
   /**
@@ -696,7 +709,7 @@ Page({
   /**
    * 隐藏设置
    */
-  hideSettingPanel(){
+  hideSettingPanel() {
     this.setData({
       showSetting: false
     })
@@ -754,11 +767,14 @@ Page({
       if (resp.statusCode === 200) {
         const res: ResponseData = resp.data as ResponseData
         if (res.success) {
-          this.updateChannelStatus(params.ids, params.status)
+          // this.updateChannelStatus(params.ids, params.status)
+          return
         }
       }
+      this.updateChannelStatus(params.ids, !params.status)
     }).catch(err => {
       console.log(err)
+      this.updateChannelStatus(params.ids, !params.status)
     })
   },
   /**
@@ -772,13 +788,54 @@ Page({
       if (resp.statusCode === 200) {
         const res: ResponseData = resp.data as ResponseData
         if (res.success) {
-          this.updateAccountStatus(params.ids, params.status)
+          // this.updateAccountStatus(params.ids, params.status)
+          return
         }
       }
+      this.updateAccountStatus(params.ids, !params.status)
     }).catch(err => {
       console.log(err)
+      this.updateAccountStatus(params.ids, !params.status)
     })
   },
+  /**
+   * 恢复原来的channel状态
+   */
+  // recoveryChannelStatus(params: PutStatusData) {
+  //   this.showTips({ status: true, icon: "error", msg: "修改失败" })
+  //   //恢复原来的状态
+  //   const channelList = this.data.channel_list;
+  //   const status = !params.status
+  //   params.ids.forEach(id => {
+  //     channelList.forEach(channel => {
+  //       if (id === channel.id) {
+  //         channel.channelDetail.status = status;
+  //       }
+  //     })
+  //   })
+  //   this.setData({
+  //     channel_list: channelList
+  //   })
+  // },
+  /**
+   * 恢复原来的account状态
+   */
+  // recoveryAccountStatus(params: PutStatusData) {
+  //   this.showTips({ status: true, icon: "error", msg: "修改失败" })
+  //   //恢复原来的状态
+  //   const accountList = this.data.account_list;
+  //   const status = !params.status
+  //   params.ids.forEach(id => {
+  //     accountList.forEach(account => {
+  //       if (id === account.id) {
+  //         account.accountDetail.status = status;
+  //       }
+  //     })
+  //   })
+  //   this.setData({
+  //     account_list: accountList
+  //   })
+  // },
   /**
    * 过滤账号
    */
@@ -795,8 +852,8 @@ Page({
     // console.log(e)
     const status = !!e.detail.checked;
     const channel_id = +e.currentTarget.id;
+    this.updateChannelStatus([channel_id], status);
     this.requestPutChannelStatus({ ids: [channel_id], status });
-    // this.updateChannelStatus(channel_id, status)
   },
   /**
    * 账号状态改变事件
@@ -805,8 +862,8 @@ Page({
     // console.log(e)
     const status = !!e.detail.checked;
     const account_id = +e.currentTarget.id;
+    this.updateAccountStatus([account_id], status);
     this.requestPutAccountStatus({ ids: [account_id], status });
-    // this.updateAccountStatus(account_id, status)
   },
   /**
    * 语法糖，修改account_list里面的账号状态
@@ -818,7 +875,7 @@ Page({
     const m = account_ids.length;
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < m; j++) {
-        if (account_list[i].id === account_ids[i]) {
+        if (account_list[i].id === account_ids[j]) {
           account_list[i].accountDetail.status = status;
           break
         }
@@ -829,7 +886,7 @@ Page({
     })
   },
   /**
-   * 语法糖，修改account_list单个账号状态
+   * 语法糖，修改channel_list单个账号状态
    */
   updateChannelStatus(channel_ids: number[], status: boolean) {
     if (!Array.isArray(channel_ids)) return;
@@ -846,6 +903,14 @@ Page({
     }
     this.setData({
       channel_list: channel_list
+    })
+  },
+  /**
+   * 显示Tips
+   */
+  showTips(tips: Tips) {
+    this.setData({
+      tips: tips
     })
   }
 })

@@ -17,6 +17,7 @@
     "l-arc-popup": "../../components/lin-ui/arc-popup",
     "l-icon":"../../components/lin-ui/icon",
     "l-switch": "../../components/lin-ui/switch",
-    "l-popup":"../../components/lin-ui/popup"
+    "l-popup":"../../components/lin-ui/popup",
+    "l-toast": "../../components/lin-ui/toast"
   }
 }
