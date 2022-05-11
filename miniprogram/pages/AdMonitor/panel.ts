@@ -771,9 +771,10 @@ Page({
           return
         }
       }
+      this.showTips({ status: true, icon: "error", msg: "修改失败" })
       this.updateChannelStatus(params.ids, !params.status)
     }).catch(err => {
-      console.log(err)
+      this.showTips({ status: true, icon: "error", msg: "修改失败" })
       this.updateChannelStatus(params.ids, !params.status)
     })
   },
@@ -792,9 +793,10 @@ Page({
           return
         }
       }
+      this.showTips({ status: true, icon: "error", msg: "修改失败" })
       this.updateAccountStatus(params.ids, !params.status)
     }).catch(err => {
-      console.log(err)
+      this.showTips({ status: true, icon: "error", msg: "修改失败" })
       this.updateAccountStatus(params.ids, !params.status)
     })
   },
