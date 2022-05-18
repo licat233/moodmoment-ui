@@ -21,6 +21,7 @@
           </view>
         </view>
       </view>
+
       <!-- 日期选择 -->
       <view class="panel_date">
         <!-- 日期选择器 -->
@@ -28,6 +29,7 @@
         <!-- 日期选择器end -->
         <!-- 日期范围 -->
         <view class="panel_picker_date">
+          <l-icon name="left" color="aqua" size="40" data-day="-1" bindtap="onChangeDate"/>
           <view class="panel_picker_date_content" bindtap="showDateCheck">
             <view class="panel_picker_date_box">
               <text class="iconfont icon-calendar"></text>
@@ -36,6 +38,7 @@
               <view class="picker_date">{{end_date}}</view>
             </view>
           </view>
+          <l-icon name="right" color="aqua" size="40" data-day="1" bindtap="onChangeDate"/>
         </view>
         <!-- 日期范围end -->
       </view>

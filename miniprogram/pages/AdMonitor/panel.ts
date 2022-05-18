@@ -1,6 +1,6 @@
 // pages/AdMonitor/panel.ts
 import { Login } from '../../app';
-import { formatDate, nowLogicDate, formatDateDetail } from '../../utils/time';
+import { formatDate, nowLogicDate, formatDateDetail, getNextDate } from '../../utils/time';
 import { POST } from '../../utils/network';
 
 const app = getApp<IAppOption>()
@@ -576,7 +576,24 @@ Page({
     this.setData({ start_date: startDate, end_date: endDate });
     this.requestStatistics();
   },
-
+  /**
+   * 点击日期改变按钮事件
+   */
+  onChangeDate(e:any) {
+    const day = +e.target.dataset?.day
+    const start_date = this.data.start_date;
+    const end_date = this.data.end_date;
+    let date = defaultDate;
+    if (start_date === end_date) {
+      date = start_date
+    }
+    date = getNextDate(date, day, "-")
+    this.setData({
+      start_date: date,
+      end_date: date
+    })
+    this.requestStatistics();
+  },
   /**
    * 渠道标签改变事件
    */

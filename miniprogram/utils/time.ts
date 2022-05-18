@@ -69,3 +69,12 @@ export const nowLogicDate = (): Date => {
 export const equalDate = (date1: Date, date2: Date): boolean => {
   return date1.toString() === date2.toString();
 }
+
+export const getNextDate = (date: string, day: number, fix: string) => {
+  const dd = new Date(date);
+  dd.setDate(dd.getDate() + day);
+  const y = dd.getFullYear();
+  const m = dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1;
+  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();
+  return y + fix + m + fix + d;
+};
