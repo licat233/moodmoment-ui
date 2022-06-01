@@ -9,15 +9,16 @@
     }
     margin: 10rpx;
     .log-content{
+      word-break: break-all;
+      color: #333;
+      text-align: left;
+      font-size: 1rem;
+      padding: 20rpx 0;
       .log-icon{
         display: inline;
         float: left;
         padding-right:  8rpx;
       }
-      color: #333;
-      text-align: left;
-      font-size: 1rem;
-      padding: 20rpx 0;
     }
     .log-time{
       color: #333;
