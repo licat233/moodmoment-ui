@@ -65,7 +65,7 @@ Page({
               logs[i].ts = formatTime(new Date(logs[i].ts))
             }
             this.setData({
-              logs: logs,
+              logs: logs.reverse(),
             })
           } catch (error) {
             console.log(error)
